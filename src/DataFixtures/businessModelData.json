@@ -1,0 +1,17 @@
+[
+  {"name" :  "Instal (CPI)"},
+  {"name" :  "Lead (CPL)"},
+  {"name" :  "Action (CPA)"},
+  {"name" :  "Open"},
+  {"name" :  "Clicks (CPC)"},
+  {"name" :  "Views"},
+  {"name" :  "Level Achieved"},
+  {"name" :  "Add to Cart"},
+  {"name" :  "Checkout Initiated"},
+  {"name" :  "Login"},
+  {"name" :  "Search"},
+  {"name" :  "Tutorial Complete"},
+  {"name" :  "Content Viewed"},
+  {"name" :  "Purchase"},
+  {"name" :  "Adjustment"}
+]

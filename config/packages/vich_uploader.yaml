@@ -1,0 +1,14 @@
+vich_uploader:
+  db_driver: orm
+  metadata:
+    type: attribute
+  mappings:
+    company_logo: # Nom du mapping pour le logo de l'entreprise
+      uri_prefix: /images/company_logos # Préfixe URI pour les logos d'entreprise
+      upload_destination: '%kernel.project_dir%/public/images/company_logos' # Répertoire de destination pour stocker les logos d'entreprise
+      namer: Vich\UploaderBundle\Naming\SmartUniqueNamer # Générateur de noms de fichier unique
+    user_avatar: # Nom du mapping pour les avatar utilisateur
+      uri_prefix: /images/user_avatar # Préfixe URI pour les avatar utilisateurs
+      upload_destination: '%kernel.project_dir%/public/images/user_avatar' # Répertoire de destination pour stocker les logos d'entreprise
+      namer: Vich\UploaderBundle\Naming\SmartUniqueNamer # Générateur de noms de fichier unique
+

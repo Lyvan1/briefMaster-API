@@ -1,0 +1,6 @@
+gesdinet_jwt_refresh_token:
+    refresh_token_class: App\Entity\RefreshToken
+    single_use: true
+    firewall: 'api'
+    manager-type: 'orm'
+#    ttl: 100

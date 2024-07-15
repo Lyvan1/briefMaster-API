@@ -1,0 +1,67 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    timezone: 'Europe/Paris'
+    # config/services.yaml
+
+    logos_directory: '%kernel.project_dir%/public'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\State\UserCreationStateProcessor:
+        bind:
+            $innerProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+
+
+    App\MessageHandler\ClearRefreshTokenFromDatabaseHandler:
+        tags: [ 'messenger.message_handler' ]
+
+
+
+
+
+    #déclaration pour utiliser le entityUserListerner en tant que service
+#    App\EntityListener\UserListener:
+#        arguments:
+#            $passwordHasher: '@security.password_hasher'
+#        tags:
+#            - { name: 'doctrine.orm.entity_listener', entity: 'App\Entity\UserOld', event: 'prePersist', lazy: true }
+
+
+    #Service pour décorer api_platform.openApiFactory
+    App\OpenApi\OpenApiFactory:
+        decorates: 'api_platform.openapi.factory'
+        arguments: ['@App\OpenApi\OpenApiFactory.inner']
+        autoconfigure: false
+
+#    app.event.jwt_authentication_success_listener:
+#        class: App\EventListener\JWTAuthenticationSuccessListener
+#        arguments:
+#            $tokenLifetime: '18000'
+#        tags:
+#            tag_1:
+#                name: kernel.event_listener
+#                event: lexik_jwt_authentication.on_authentication_success
+#                method: onAuthenticationSuccess
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+
