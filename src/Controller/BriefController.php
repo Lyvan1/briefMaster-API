@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class BriefController extends AbstractController
 {
 
-    #[Route('/briefApi/brieves', name: 'app_brief', methods: ['POST'])]
+    #[Route('/briefApi/', name: 'app_brief', methods: ['POST'])]
     public function createBrief(SerializerInterface $serializer, Request $request, BusinessModelRepository $businessModelRepo, validatorInterface $validator, EntityManagerInterface $entityManager, IriConverterInterface $iriConverter): JsonResponse
     {
 

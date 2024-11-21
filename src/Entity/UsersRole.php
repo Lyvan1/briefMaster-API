@@ -10,16 +10,16 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UsersRoleRepository::class)]
-#[ApiResource(operations: [
-    new Get(
-        normalizationContext: ['groups' => ['read:User:Role',]],
-        denormalizationContext: ['groups' => ['read:User:Role',]]
-    ),
-    new GetCollection(
-        normalizationContext: ['groups' => ['read:User:Role']],
-        denormalizationContext: ['groups' => ['read:User:Role']]
-    ),
-])]
+#[ApiResource(
+    operations: [
+        new Get(
+            normalizationContext: ['groups' => ['read:User:Role', 'read:User:item', 'read:User:collection']]
+        ),
+        new GetCollection(
+           normalizationContext: ['groups' => ['read:User:Role']]
+        )
+    ]
+)]
 class UsersRole
 {
     #[ORM\Id]
@@ -31,7 +31,6 @@ class UsersRole
     #[ORM\Column(length: 255)]
     #[Groups(['read:User:Role'])]
     private ?string $name = null;
-
     public function getId(): ?int
     {
         return $this->id;

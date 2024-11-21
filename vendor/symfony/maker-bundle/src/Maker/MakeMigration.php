@@ -51,6 +51,7 @@ final class MakeMigration extends AbstractMaker implements ApplicationAwareMaker
         return 'Create a new migration based on database changes';
     }
 
+    /** @return void */
     public function setApplication(Application $application)
     {
         $this->application = $application;
@@ -77,6 +78,7 @@ final class MakeMigration extends AbstractMaker implements ApplicationAwareMaker
         ;
     }
 
+    /** @return void|int */
     public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator)
     {
         $options = ['doctrine:migrations:diff'];
@@ -140,12 +142,12 @@ final class MakeMigration extends AbstractMaker implements ApplicationAwareMaker
         $this->writeSuccessMessage($io);
 
         $io->text([
-            sprintf('Review the new migration then run it with <info>%s doctrine:migrations:migrate</info>', CliOutputHelper::getCommandPrefix()),
+            \sprintf('Review the new migration then run it with <info>%s doctrine:migrations:migrate</info>', CliOutputHelper::getCommandPrefix()),
             'See <fg=yellow>https://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html</>',
         ]);
     }
 
-    private function noChangesMessage(ConsoleStyle $io)
+    private function noChangesMessage(ConsoleStyle $io): void
     {
         $io->warning([
             'No database changes were detected.',
@@ -156,6 +158,7 @@ final class MakeMigration extends AbstractMaker implements ApplicationAwareMaker
         ]);
     }
 
+    /** @return void */
     public function configureDependencies(DependencyBuilder $dependencies)
     {
         $dependencies->addClassDependency(

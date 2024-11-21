@@ -1,0 +1,10 @@
+[
+  {"name" :  "Testing"},
+  {"name" :  "Validating"},
+  {"name" :  "Pending Validation"},
+  {"name" :  "Accepted"},
+  {"name" :  "Rejected"},
+  {"name" :  "Active"},
+  {"name" :  "Inactive"},
+  {"name" :  "Setting Up"}
+]

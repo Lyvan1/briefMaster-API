@@ -278,7 +278,8 @@ return [PHP_INT_MAX, static fn () => \Symfony\Component\VarExporter\Internal\Hyd
                 2 => [
                     'groups' => [
                         'create:Company:item',
-                        'read:Company:Collection',
+                        'read:Company:Role',
+                        'read:Company:collection',
                     ],
                 ],
                 null,
@@ -297,11 +298,18 @@ return [PHP_INT_MAX, static fn () => \Symfony\Component\VarExporter\Internal\Hyd
                 8 => null,
             ],
             'denormalizationContext' => [
-                2 => null,
+                2 => [
+                    'groups' => [
+                        'create:Company:item',
+                        'read:Company:item',
+                        'read:Company:Role',
+                        'read:Company:collection',
+                    ],
+                ],
                 null,
                 5 => [
                     'groups' => [
-                        'read:Company:collection',
+                        'read:Company:item',
                     ],
                 ],
                 [
@@ -836,11 +844,11 @@ return [PHP_INT_MAX, static fn () => \Symfony\Component\VarExporter\Internal\Hyd
             'openapiContext' => [
                 2 => [
                     'summary' => 'Create a new company',
-                    'description' => 'Permet de créer un Brief',
+                    'description' => 'Permet de créer une nouvelle entreprise',
                 ],
                 null,
                 5 => [
-                    'summary' => ' Get Companies List',
+                    'summary' => 'Get Companies List',
                     'description' => 'Allows the user to get the companies list',
                 ],
                 [

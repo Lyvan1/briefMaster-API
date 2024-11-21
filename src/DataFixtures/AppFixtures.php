@@ -4,8 +4,9 @@ namespace App\DataFixtures;
 
 use App\Entity\BusinessModel;
 use App\Entity\Company;
+use App\Entity\Leverage;
+use App\Entity\Status;
 use App\Entity\User;
-use App\Entity\UserOld;
 use App\Entity\UsersRole;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -26,6 +27,24 @@ class AppFixtures extends Fixture
 
         $usersRolesData = file_get_contents(__DIR__.'/usersRoleData.json');
         $jsonUsersRolesData = json_decode($usersRolesData);
+
+        $leverageData = file_get_contents(__DIR__.'/leverageData.json');
+        $jsonLeverageData = json_decode($leverageData);
+
+        $statusData = file_get_contents(__DIR__.'/statusData.json');
+        $jsonStatusData = json_decode($statusData);
+
+        foreach($jsonStatusData as $data){
+            $status = new Status();
+            $status->setName($data->name);
+            $manager->persist($status);
+        }
+
+        foreach ($jsonLeverageData as $data) {
+            $leverage = new Leverage();
+            $leverage->setName($data->name);
+            $manager->persist($leverage);
+        }
 
         foreach($jsonBusinessModelData as $data){
             $businessModel = new BusinessModel();

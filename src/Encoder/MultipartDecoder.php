@@ -26,22 +26,36 @@ final class MultipartDecoder implements DecoderInterface
             return null;
         }
 
-        return array_map(static function (string $element) {
+//        return array_map(static function (string $element) {
+//
+//                // Multipart form values will be encoded in JSON.
+//
+//                $decoded = json_decode($element, true);
+//
+//                return \is_array($decoded) ? $decoded : $element;
+//            }, $request->request->all()) + $request->files->all();
 
-                // Multipart form values will be encoded in JSON.
+        return array_map(static function ($element) {
+                // Si c'est une chaîne, essayez de la décoder en JSON.
+                if (is_string($element)) {
+                    $decoded = json_decode($element, true);
+                    return \is_array($decoded) ? $decoded : $element;
+                }
 
-                $decoded = json_decode($element, true);
-
-                return \is_array($decoded) ? $decoded : $element;
+                // Si c'est déjà un tableau, renvoyez-le tel quel.
+                return $element;
             }, $request->request->all()) + $request->files->all();
 
     }
+
+
 
     /**
      * @inheritDoc
      */
     public function supportsDecoding(string $format): bool
     {
+
         // TODO: Implement supportsDecoding() method.
         return self::FORMAT === $format;
     }

@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Project;
-use App\Services\TrackingPixelGenerator;
+use App\Service\TrackingPixelGenerator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

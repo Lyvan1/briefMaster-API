@@ -26,6 +26,7 @@
       <parameter key="DoctrineFixturesBundle">Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle</parameter>
       <parameter key="GesdinetJWTRefreshTokenBundle">Gesdinet\JWTRefreshTokenBundle\GesdinetJWTRefreshTokenBundle</parameter>
       <parameter key="VichUploaderBundle">Vich\UploaderBundle\VichUploaderBundle</parameter>
+      <parameter key="ZenstruckFoundryBundle">Zenstruck\Foundry\ZenstruckFoundryBundle</parameter>
     </parameter>
     <parameter key="kernel.bundles_metadata" type="collection">
       <parameter key="FrameworkBundle" type="collection">
@@ -79,6 +80,10 @@
       <parameter key="VichUploaderBundle" type="collection">
         <parameter key="path">/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi/vendor/vich/uploader-bundle</parameter>
         <parameter key="namespace">Vich\UploaderBundle</parameter>
+      </parameter>
+      <parameter key="ZenstruckFoundryBundle" type="collection">
+        <parameter key="path">/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi/vendor/zenstruck/foundry</parameter>
+        <parameter key="namespace">Zenstruck\Foundry</parameter>
       </parameter>
     </parameter>
     <parameter key="kernel.charset">UTF-8</parameter>
@@ -218,7 +223,7 @@
     <parameter key="doctrine.orm.second_level_cache.logger_statistics.class">Doctrine\ORM\Cache\Logging\StatisticsCacheLogger</parameter>
     <parameter key="doctrine.orm.second_level_cache.cache_configuration.class">Doctrine\ORM\Cache\CacheConfiguration</parameter>
     <parameter key="doctrine.orm.second_level_cache.regions_configuration.class">Doctrine\ORM\Cache\RegionsConfiguration</parameter>
-    <parameter key="doctrine.orm.auto_generate_proxy_classes">true</parameter>
+    <parameter key="doctrine.orm.auto_generate_proxy_classes">false</parameter>
     <parameter key="doctrine.orm.enable_lazy_ghost_objects">true</parameter>
     <parameter key="doctrine.orm.proxy_dir">/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi/var/cache/dev/doctrine/orm/Proxies</parameter>
     <parameter key="doctrine.orm.proxy_namespace">Proxies</parameter>
@@ -528,6 +533,7 @@
     <service id="App\Controller\Company\PatchCompanyController" class="App\Controller\Company\PatchCompanyController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
+      <argument type="service" id="api_platform.validator"/>
       <call method="setContainer">
         <argument type="service" id=".service_locator.jUv.zyj.App\Controller\Company\PatchCompanyController"/>
       </call>
@@ -551,7 +557,7 @@
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
       <argument type="service" id="validator"/>
-      <argument type="service" id="App\Services\TrackingPixelGenerator"/>
+      <argument type="service" id="App\Service\TrackingPixelGenerator"/>
       <call method="setContainer">
         <argument type="service" id=".service_locator.jUv.zyj.App\Controller\PixelGeneratorController"/>
       </call>
@@ -561,6 +567,22 @@
       <tag name="container.service_subscriber"/>
       <call method="setContainer">
         <argument type="service" id=".service_locator.jUv.zyj.App\Controller\SecurityController"/>
+      </call>
+    </service>
+    <service id="App\Controller\TestMailController" class="App\Controller\TestMailController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.jUv.zyj.App\Controller\TestMailController"/>
+      </call>
+    </service>
+    <service id="App\Controller\User\PatchUserController" class="App\Controller\User\PatchUserController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <argument type="service" id="api_platform.validator"/>
+      <argument type="service" id="security.user_password_hasher"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.jUv.zyj.App\Controller\User\PatchUserController"/>
       </call>
     </service>
     <service id="App\DataFixtures\AppFixtures" class="App\DataFixtures\AppFixtures" autowire="true" autoconfigure="true">
@@ -585,6 +607,10 @@
     <service id="App\EventListener\JWTAuthenticationSuccessListener" class="App\EventListener\JWTAuthenticationSuccessListener" autowire="true" autoconfigure="true">
       <tag name="container.error" message="Cannot autowire service &quot;App\EventListener\JWTAuthenticationSuccessListener&quot;: argument &quot;$tokenLifetime&quot; of method &quot;__construct()&quot; is type-hinted &quot;int&quot;, you should configure its value explicitly."/>
     </service>
+    <service id="App\EventListener\UserPostPersistListener" class="App\EventListener\UserPostPersistListener" autowire="true" autoconfigure="true">
+      <argument type="service" id="router.default"/>
+      <argument type="service" id="monolog.logger"/>
+    </service>
     <service id="App\EventListener\ValidationExceptionListener" class="App\EventListener\ValidationExceptionListener" autowire="true" autoconfigure="true">
       <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException" priority="0" dispatcher=""/>
     </service>
@@ -601,6 +627,10 @@
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
+    <service id="App\Repository\BriefSelectionRepository" class="App\Repository\BriefSelectionRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
     <service id="App\Repository\BusinessModelRepository" class="App\Repository\BusinessModelRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
@@ -609,11 +639,31 @@
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
+    <service id="App\Repository\CompanyRoleRepository" class="App\Repository\CompanyRoleRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="App\Repository\LeverageRepository" class="App\Repository\LeverageRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
     <service id="App\Repository\MessageRepository" class="App\Repository\MessageRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
+    <service id="App\Repository\ProductRepository" class="App\Repository\ProductRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
     <service id="App\Repository\ProjectRepository" class="App\Repository\ProjectRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="App\Repository\RolesCompanyRepository" class="App\Repository\RolesCompanyRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="App\Repository\StatusRepository" class="App\Repository\StatusRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
@@ -645,19 +695,34 @@
       <argument type="service" id="serializer.normalizer.object"/>
       <argument type="service" id="vich_uploader.storage.file_system"/>
       <argument type="service" id="App\Repository\CompanyRepository"/>
-      <argument type="service" id="App\Repository\UsersRepository"/>
+      <argument type="service" id="App\Repository\UserRepository"/>
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
       <argument type="service" id="vich_uploader.download_handler"/>
     </service>
     <service id="App\Serializer\UploadedFileDenormalizer" class="App\Serializer\UploadedFileDenormalizer" autowire="true" autoconfigure="true">
       <tag name="serializer.normalizer"/>
     </service>
-    <service id="App\Services\TrackingPixelGenerator" class="App\Services\TrackingPixelGenerator" public="true" autowire="true" autoconfigure="true">
+    <service id="App\Service\MailCompanySubscription" class="App\Service\MailCompanySubscription" autowire="true" autoconfigure="true">
+      <argument type="service" id="mailer.mailer"/>
+      <argument type="service" id="monolog.logger"/>
+    </service>
+    <service id="App\Service\MailUpdatePassword" class="App\Service\MailUpdatePassword" autowire="true" autoconfigure="true">
+      <argument type="service" id="mailer.mailer"/>
+      <argument type="service" id="monolog.logger"/>
+    </service>
+    <service id="App\Service\TrackingPixelGenerator" class="App\Service\TrackingPixelGenerator" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
       <call method="setContainer">
-        <argument type="service" id=".service_locator.jUv.zyj.App\Services\TrackingPixelGenerator"/>
+        <argument type="service" id=".service_locator.jUv.zyj.App\Service\TrackingPixelGenerator"/>
       </call>
+    </service>
+    <service id="App\State\CompanyCreationStateProcessor" class="App\State\CompanyCreationStateProcessor" autowire="true" autoconfigure="true">
+      <tag name="api_platform.state_processor"/>
+      <argument type="service" id="api_platform.doctrine.orm.state.persist_processor"/>
+      <argument type="service" id="App\Repository\UserRepository"/>
+      <argument type="service" id="App\Repository\UsersRoleRepository"/>
+      <argument type="service" id="App\Service\MailCompanySubscription"/>
     </service>
     <service id="App\State\UserCreationStateProcessor" class="App\State\UserCreationStateProcessor" autowire="true" autoconfigure="true">
       <tag name="api_platform.state_processor"/>
@@ -701,7 +766,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.Uj_nFTv"/>
+      <argument type="service" id=".service_locator..snt7Q5"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -824,6 +889,7 @@
         <argument key="cache.messenger.restart_workers_signal" type="service" id="cache.messenger.restart_workers_signal" on-invalid="ignore_uninitialized"/>
         <argument key="cache.scheduler" type="service" id="cache.scheduler" on-invalid="ignore_uninitialized"/>
         <argument key="http_client.transport" type="service" id="http_client.transport" on-invalid="ignore_uninitialized"/>
+        <argument key="mailer.message_logger_listener" type="service" id="mailer.message_logger_listener" on-invalid="ignore_uninitialized"/>
         <argument key="debug.stopwatch" type="service" id="debug.stopwatch" on-invalid="ignore_uninitialized"/>
         <argument key="debug.event_dispatcher" type="service" id="debug.event_dispatcher" on-invalid="ignore_uninitialized"/>
         <argument key="debug.log_processor" type="service" id="debug.log_processor" on-invalid="ignore_uninitialized"/>
@@ -870,6 +936,9 @@
         </argument>
         <argument key="http_client.transport" type="collection">
           <argument>?reset</argument>
+        </argument>
+        <argument key="mailer.message_logger_listener" type="collection">
+          <argument>reset</argument>
         </argument>
         <argument key="debug.stopwatch" type="collection">
           <argument>reset</argument>
@@ -1346,6 +1415,12 @@
           <argument key="Symfony\Component\HttpClient\Messenger\PingWebhookMessage" type="collection">
             <argument type="collection">
               <argument>http_client.messenger.ping_webhook_handler</argument>
+              <argument type="collection"/>
+            </argument>
+          </argument>
+          <argument key="Symfony\Component\Mailer\Messenger\SendEmailMessage" type="collection">
+            <argument type="collection">
+              <argument>mailer.messenger.message_handler</argument>
               <argument type="collection"/>
             </argument>
           </argument>
@@ -1869,6 +1944,81 @@
       <tag name="messenger.message_handler"/>
       <argument type="service" id="http_client.uri_template"/>
     </service>
+    <service id="mailer.mailer" class="Symfony\Component\Mailer\Mailer">
+      <argument type="service" id="mailer.transports"/>
+      <argument type="service" id="messenger.bus.default" on-invalid="null"/>
+      <argument type="service" id="debug.event_dispatcher" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transports" class="Symfony\Component\Mailer\Transport\Transports">
+      <argument type="collection">
+        <argument key="main">%env(MAILER_DSN)%</argument>
+      </argument>
+      <factory service="mailer.transport_factory" method="fromStrings"/>
+    </service>
+    <service id="mailer.transport_factory" class="Symfony\Component\Mailer\Transport">
+      <argument type="tagged_iterator" tag="mailer.transport_factory"/>
+    </service>
+    <service id="mailer.default_transport" class="Symfony\Component\Mailer\Transport\TransportInterface">
+      <argument>%env(MAILER_DSN)%</argument>
+      <factory service="mailer.transport_factory" method="fromString"/>
+    </service>
+    <service id="mailer.messenger.message_handler" class="Symfony\Component\Mailer\Messenger\MessageHandler">
+      <tag name="messenger.message_handler"/>
+      <argument type="service" id="mailer.transports"/>
+    </service>
+    <service id="mailer.envelope_listener" class="Symfony\Component\Mailer\EventListener\EnvelopeListener">
+      <tag name="kernel.event_subscriber"/>
+      <argument>null</argument>
+      <argument>null</argument>
+    </service>
+    <service id="mailer.message_logger_listener" class="Symfony\Component\Mailer\EventListener\MessageLoggerListener">
+      <tag name="kernel.reset" method="reset"/>
+      <tag name="kernel.event_subscriber"/>
+    </service>
+    <service id="mailer.messenger_transport_listener" class="Symfony\Component\Mailer\EventListener\MessengerTransportListener">
+      <tag name="kernel.event_subscriber"/>
+    </service>
+    <service id="console.command.mailer_test" class="Symfony\Component\Mailer\Command\MailerTestCommand">
+      <tag name="console.command"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="mailer.transports"/>
+      <call method="setName">
+        <argument>mailer:test</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Test Mailer transports by sending an email</argument>
+      </call>
+    </service>
+    <service id="mailer.transport_factory.abstract" class="Symfony\Component\Mailer\Transport\AbstractTransportFactory" abstract="true">
+      <tag name="monolog.logger" channel="mailer"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="http_client.uri_template" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transport_factory.null" class="Symfony\Component\Mailer\Transport\NullTransportFactory">
+      <tag name="mailer.transport_factory"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="http_client.uri_template" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transport_factory.sendmail" class="Symfony\Component\Mailer\Transport\SendmailTransportFactory">
+      <tag name="mailer.transport_factory"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="http_client.uri_template" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transport_factory.smtp" class="Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory">
+      <tag name="mailer.transport_factory" priority="-100"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="http_client.uri_template" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transport_factory.native" class="Symfony\Component\Mailer\Transport\NativeTransportFactory">
+      <tag name="mailer.transport_factory"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="http_client.uri_template" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
+    </service>
     <service id="debug.error_handler_configurator" class="Symfony\Component\HttpKernel\Debug\ErrorHandlerConfigurator" public="true">
       <tag name="monolog.logger" channel="php"/>
       <argument type="service" id="monolog.logger.php"/>
@@ -2246,6 +2396,30 @@
         <argument>0</argument>
       </call>
       <call method="addListener">
+        <argument>Symfony\Component\Mailer\Event\MessageEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="mailer.envelope_listener"/>
+          <argument>onMessage</argument>
+        </argument>
+        <argument>-255</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Mailer\Event\MessageEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="mailer.message_logger_listener"/>
+          <argument>onMessage</argument>
+        </argument>
+        <argument>-255</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Mailer\Event\MessageEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="mailer.messenger_transport_listener"/>
+          <argument>onMessage</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
           <argument type="service_closure" id="debug.debug_handlers_listener"/>
@@ -2398,6 +2572,14 @@
         <argument>-128</argument>
       </call>
       <call method="addListener">
+        <argument>Symfony\Component\Mailer\Event\MessageEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="twig.mailer.message_listener"/>
+          <argument>onMessage</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
         <argument>kernel.controller_arguments</argument>
         <argument type="collection">
           <argument type="service_closure" id="controller.is_granted_attribute_listener"/>
@@ -2531,7 +2713,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.Uj_nFTv"/>
+      <argument type="service" id=".service_locator..snt7Q5"/>
     </service>
     <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <tag name="kernel.reset" method="reset"/>
@@ -2634,7 +2816,7 @@
     <service id="router.default" class="Symfony\Bundle\FrameworkBundle\Routing\Router">
       <tag name="monolog.logger" channel="router"/>
       <tag name="container.service_subscriber" id="routing.loader"/>
-      <argument type="service" id=".service_locator.yEoeHjj.router.default"/>
+      <argument type="service" id=".service_locator.otfny_1.router.default"/>
       <argument>kernel::loadRoutes</argument>
       <argument type="collection">
         <argument key="cache_dir">/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi/var/cache/dev</argument>
@@ -3642,7 +3824,9 @@
     </service>
     <service id="twig.template_iterator" class="Symfony\Bundle\TwigBundle\TemplateIterator">
       <argument type="service" id="kernel"/>
-      <argument type="collection"/>
+      <argument type="collection">
+        <argument key="/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi/vendor/symfony/twig-bridge/Resources/views/Email">email</argument>
+      </argument>
       <argument>/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi/templates</argument>
       <argument type="collection">
         <argument>*.twig</argument>
@@ -3700,6 +3884,14 @@
       </call>
       <call method="addPath">
         <argument>/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi/templates</argument>
+      </call>
+      <call method="addPath">
+        <argument>/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi/vendor/symfony/twig-bridge/Resources/views/Email</argument>
+        <argument>email</argument>
+      </call>
+      <call method="addPath">
+        <argument>/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi/vendor/symfony/twig-bridge/Resources/views/Email</argument>
+        <argument>!email</argument>
       </call>
     </service>
     <service id="twig.loader.chain" class="Twig\Loader\ChainLoader"/>
@@ -3820,6 +4012,14 @@
       <call method="setDescription">
         <argument>Lint a Twig template and outputs encountered errors</argument>
       </call>
+    </service>
+    <service id="twig.mailer.message_listener" class="Symfony\Component\Mailer\EventListener\MessageListener">
+      <tag name="kernel.event_subscriber"/>
+      <argument>null</argument>
+      <argument type="service" id="twig.mime_body_renderer"/>
+    </service>
+    <service id="twig.mime_body_renderer" class="Symfony\Bridge\Twig\Mime\BodyRenderer">
+      <argument type="service" id="twig"/>
     </service>
     <service id="security.authorization_checker" class="Symfony\Component\Security\Core\Authorization\AuthorizationChecker">
       <argument type="service" id="security.token_storage"/>
@@ -5066,7 +5266,7 @@
     <service id="doctrine.orm.configuration" class="Doctrine\ORM\Configuration" abstract="true"/>
     <service id="doctrine.orm.entity_manager.abstract" class="Doctrine\ORM\EntityManager" lazy="true" abstract="true"/>
     <service id="doctrine.orm.container_repository_factory" class="Doctrine\Bundle\DoctrineBundle\Repository\ContainerRepositoryFactory">
-      <argument type="service" id=".service_locator.oRhHwcD"/>
+      <argument type="service" id=".service_locator.0M6RPz6"/>
     </service>
     <service id="doctrine.orm.manager_configurator.abstract" class="Doctrine\Bundle\DoctrineBundle\ManagerConfigurator" abstract="true">
       <argument type="collection"/>
@@ -5249,7 +5449,7 @@
         <argument>Proxies</argument>
       </call>
       <call method="setAutoGenerateProxyClasses">
-        <argument>true</argument>
+        <argument>false</argument>
       </call>
       <call method="setSchemaIgnoreClasses">
         <argument type="collection"/>
@@ -5723,7 +5923,7 @@
       <argument type="service" id=".service_locator.OavZKAY"/>
     </service>
     <service id="api_platform.state_processor.locator" class="ApiPlatform\State\CallableProcessor">
-      <argument type="service" id=".service_locator.iZHetR2"/>
+      <argument type="service" id=".service_locator.KxChr7Q"/>
     </service>
     <service id="api_platform.state_provider.content_negotiation" class="ApiPlatform\State\Provider\ContentNegotiationProvider">
       <argument type="service" id="api_platform.state_provider.access_checker.post_validate"/>
@@ -5779,6 +5979,7 @@
     <service id="api_platform.filter_locator" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
+        <argument key="annotated_app_entity_brief_api_platform_doctrine_orm_filter_order_filter" type="service_closure" id="annotated_app_entity_brief_api_platform_doctrine_orm_filter_order_filter"/>
         <argument key="annotated_app_entity_company_api_platform_doctrine_orm_filter_date_filter" type="service_closure" id="annotated_app_entity_company_api_platform_doctrine_orm_filter_date_filter"/>
         <argument key="annotated_app_entity_company_api_platform_doctrine_orm_filter_order_filter" type="service_closure" id="annotated_app_entity_company_api_platform_doctrine_orm_filter_order_filter"/>
         <argument key="annotated_app_entity_company_api_platform_doctrine_orm_filter_search_filter" type="service_closure" id="annotated_app_entity_company_api_platform_doctrine_orm_filter_search_filter"/>
@@ -6801,7 +7002,11 @@
     <service id="maker.php_compat_util" class="Symfony\Bundle\MakerBundle\Util\PhpCompatUtil">
       <argument type="service" id="maker.file_manager"/>
     </service>
-    <service id="maker.template_component_generator" class="Symfony\Bundle\MakerBundle\Util\TemplateComponentGenerator"/>
+    <service id="maker.template_component_generator" class="Symfony\Bundle\MakerBundle\Util\TemplateComponentGenerator">
+      <argument>true</argument>
+      <argument>false</argument>
+      <argument>App</argument>
+    </service>
     <service id="maker.maker.make_authenticator" class="Symfony\Bundle\MakerBundle\Maker\MakeAuthenticator">
       <tag name="maker.command"/>
       <argument type="service" id="maker.file_manager"/>
@@ -6815,6 +7020,7 @@
     </service>
     <service id="maker.maker.make_twig_component" class="Symfony\Bundle\MakerBundle\Maker\MakeTwigComponent">
       <tag name="maker.command"/>
+      <argument type="service" id="maker.file_manager"/>
     </service>
     <service id="maker.maker.make_controller" class="Symfony\Bundle\MakerBundle\Maker\MakeController">
       <tag name="maker.command"/>
@@ -6871,6 +7077,11 @@
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.doctrine_helper"/>
       <argument type="service" id="maker.entity_class_generator"/>
+      <argument type="service" id="router.default" on-invalid="ignore"/>
+    </service>
+    <service id="maker.maker.make_schedule" class="Symfony\Bundle\MakerBundle\Maker\MakeSchedule">
+      <tag name="maker.command"/>
+      <argument type="service" id="maker.file_manager"/>
     </service>
     <service id="maker.maker.make_serializer_encoder" class="Symfony\Bundle\MakerBundle\Maker\MakeSerializerEncoder">
       <tag name="maker.command"/>
@@ -6920,6 +7131,16 @@
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.security_config_updater"/>
       <argument type="service" id="maker.security_controller_builder"/>
+    </service>
+    <service id="maker.maker.make_custom_authenticator" class="Symfony\Bundle\MakerBundle\Maker\Security\MakeCustomAuthenticator">
+      <tag name="maker.command"/>
+      <argument type="service" id="maker.file_manager"/>
+      <argument type="service" id="maker.generator"/>
+    </service>
+    <service id="maker.maker.make_webhook" class="Symfony\Bundle\MakerBundle\Maker\MakeWebhook">
+      <tag name="maker.command"/>
+      <argument type="service" id="maker.file_manager"/>
+      <argument type="service" id="maker.generator"/>
     </service>
     <service id="monolog.logger" class="Monolog\Logger">
       <argument>app</argument>
@@ -7398,6 +7619,104 @@
       <argument type="service" id="vich_uploader.metadata_reader"/>
       <argument type="service" id="vich_uploader.upload_handler"/>
     </service>
+    <service id=".zenstruck_foundry.faker" class="Faker\Generator">
+      <factory class="Faker\Factory" method="create"/>
+    </service>
+    <service id=".zenstruck_foundry.factory_registry" class="Zenstruck\Foundry\FactoryRegistry">
+      <argument type="tagged_iterator" tag="foundry.factory"/>
+    </service>
+    <service id=".zenstruck_foundry.story_registry" class="Zenstruck\Foundry\StoryRegistry">
+      <argument type="tagged_iterator" tag="foundry.story"/>
+      <argument type="collection"/>
+    </service>
+    <service id=".zenstruck_foundry.instantiator" class="Zenstruck\Foundry\Object\Instantiator" constructor="withConstructor"/>
+    <service id=".zenstruck_foundry.configuration" class="Zenstruck\Foundry\Configuration" public="true">
+      <argument type="service" id=".zenstruck_foundry.factory_registry"/>
+      <argument type="service" id=".zenstruck_foundry.faker"/>
+      <argument type="service" id=".zenstruck_foundry.instantiator"/>
+      <argument type="service" id=".zenstruck_foundry.story_registry"/>
+      <argument type="service" id=".zenstruck_foundry.persistence_manager" on-invalid="null"/>
+    </service>
+    <service id=".zenstruck_foundry.maker.story" class="Zenstruck\Foundry\Maker\MakeStory">
+      <tag name="maker.command"/>
+      <argument type="service" id=".zenstruck_foundry.maker.namespace_guesser"/>
+      <argument>Story</argument>
+    </service>
+    <service id=".zenstruck_foundry.maker.factory" class="Zenstruck\Foundry\Maker\MakeFactory">
+      <tag name="maker.command"/>
+      <argument type="service" id="kernel"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.generator"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.autoCompleter"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.candidate_classes_extractor"/>
+      <argument>Factory</argument>
+    </service>
+    <service id=".zenstruck_foundry.maker.factory.orm_default_properties_guesser" class="Zenstruck\Foundry\Maker\Factory\ORMDefaultPropertiesGuesser">
+      <tag name="foundry.make_factory.default_properties_guesser"/>
+      <argument type="service" id=".zenstruck_foundry.persistence_manager" on-invalid="null"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.factory_class_map"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.generator"/>
+    </service>
+    <service id=".zenstruck_foundry.maker.factory.doctrine_scalar_fields_default_properties_guesser" class="Zenstruck\Foundry\Maker\Factory\DoctrineScalarFieldsDefaultPropertiesGuesser">
+      <tag name="foundry.make_factory.default_properties_guesser"/>
+      <argument type="service" id=".zenstruck_foundry.persistence_manager" on-invalid="null"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.factory_class_map"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.generator"/>
+    </service>
+    <service id=".zenstruck_foundry.maker.factory.object_default_properties_guesser" class="Zenstruck\Foundry\Maker\Factory\ObjectDefaultPropertiesGuesser">
+      <tag name="foundry.make_factory.default_properties_guesser"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.factory_class_map"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.generator"/>
+    </service>
+    <service id=".zenstruck_foundry.maker.factory.factory_class_map" class="Zenstruck\Foundry\Maker\Factory\FactoryClassMap">
+      <argument type="tagged_iterator" tag="foundry.factory"/>
+    </service>
+    <service id=".zenstruck_foundry.maker.factory.generator" class="Zenstruck\Foundry\Maker\Factory\FactoryGenerator">
+      <argument type="service" id=".zenstruck_foundry.persistence_manager" on-invalid="null"/>
+      <argument type="service" id="kernel"/>
+      <argument type="tagged_iterator" tag="foundry.make_factory.default_properties_guesser"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.factory_class_map"/>
+      <argument type="service" id=".zenstruck_foundry.maker.namespace_guesser"/>
+    </service>
+    <service id=".zenstruck_foundry.maker.factory.autoCompleter" class="Zenstruck\Foundry\Maker\Factory\NoPersistenceObjectsAutoCompleter">
+      <argument>/Users/lyvangalonde/Desktop/documents OCEADS/projet CRM/briefApi/briefApi</argument>
+    </service>
+    <service id=".zenstruck_foundry.maker.factory.candidate_classes_extractor" class="Zenstruck\Foundry\Maker\Factory\FactoryCandidatesClassesExtractor">
+      <argument type="service" id=".zenstruck_foundry.persistence_manager" on-invalid="null"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory.factory_class_map"/>
+    </service>
+    <service id=".zenstruck_foundry.maker.namespace_guesser" class="Zenstruck\Foundry\Maker\NamespaceGuesser">
+      <argument type="service" id=".zenstruck_foundry.persistence_manager" on-invalid="null"/>
+    </service>
+    <service id=".zenstruck_foundry.persistence_manager" class="Zenstruck\Foundry\Persistence\PersistenceManager">
+      <argument type="tagged_iterator" tag=".foundry.persistence_strategy"/>
+    </service>
+    <service id=".zenstruck_foundry.persistence_strategy.orm" class="Zenstruck\Foundry\ORM\OrmV3PersistenceStrategy">
+      <tag name=".foundry.persistence_strategy"/>
+      <argument type="service" id="doctrine"/>
+      <argument type="collection">
+        <argument key="auto_persist">true</argument>
+        <argument key="reset" type="collection">
+          <argument key="connections" type="collection">
+            <argument>default</argument>
+          </argument>
+          <argument key="entity_managers" type="collection">
+            <argument>default</argument>
+          </argument>
+          <argument key="mode">schema</argument>
+        </argument>
+      </argument>
+    </service>
+    <service id="annotated_app_entity_brief_api_platform_doctrine_orm_filter_order_filter" class="ApiPlatform\Doctrine\Orm\Filter\OrderFilter" autowire="true">
+      <tag name="api_platform.filter"/>
+      <argument type="service" id="doctrine"/>
+      <argument>order</argument>
+      <argument type="service" id="monolog.logger" on-invalid="ignore"/>
+      <argument type="collection">
+        <argument key="id">DESC</argument>
+      </argument>
+      <argument type="service" id="serializer.name_converter.metadata_aware" on-invalid="ignore"/>
+      <argument>null</argument>
+    </service>
     <service id="annotated_app_entity_company_api_platform_doctrine_orm_filter_search_filter" class="ApiPlatform\Doctrine\Orm\Filter\SearchFilter" autowire="true">
       <tag name="api_platform.filter"/>
       <argument type="service" id="doctrine"/>
@@ -7405,7 +7724,7 @@
       <argument type="service" id="property_accessor"/>
       <argument type="service" id="monolog.logger" on-invalid="ignore"/>
       <argument type="collection">
-        <argument key="name">partial</argument>
+        <argument key="name">word_start</argument>
       </argument>
       <argument type="service" id="api_platform.api.identifiers_extractor" on-invalid="ignore"/>
       <argument type="service" id="serializer.name_converter.metadata_aware" on-invalid="ignore"/>
@@ -7455,6 +7774,12 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\SecurityController" class="App\Controller\SecurityController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\SecurityController" class="App\Controller\SecurityController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\SecurityController" class="App\Controller\SecurityController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\TestMailController" class="App\Controller\TestMailController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\TestMailController" class="App\Controller\TestMailController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\TestMailController" class="App\Controller\TestMailController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\User\PatchUserController" class="App\Controller\User\PatchUserController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\User\PatchUserController" class="App\Controller\User\PatchUserController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\User\PatchUserController" class="App\Controller\User\PatchUserController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\FixturesBundle\ORMFixtureInterface.0.App\DataFixtures\AppFixtures" class="App\DataFixtures\AppFixtures" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\DataFixtures\AppFixtures" class="App\DataFixtures\AppFixtures" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Serializer\Encoder\DecoderInterface.0.App\Encoder\MultipartDecoder" class="App\Encoder\MultipartDecoder" autowire="true" abstract="true"/>
@@ -7467,14 +7792,26 @@
     <service id=".abstract.instanceof.App\MessageHandler\ClearRefreshTokenFromDatabaseHandler" class="App\MessageHandler\ClearRefreshTokenFromDatabaseHandler" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\BriefRepository" class="App\Repository\BriefRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\BriefRepository" class="App\Repository\BriefRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\BriefSelectionRepository" class="App\Repository\BriefSelectionRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\BriefSelectionRepository" class="App\Repository\BriefSelectionRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\BusinessModelRepository" class="App\Repository\BusinessModelRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\BusinessModelRepository" class="App\Repository\BusinessModelRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\CompanyRepository" class="App\Repository\CompanyRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\CompanyRepository" class="App\Repository\CompanyRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\CompanyRoleRepository" class="App\Repository\CompanyRoleRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\CompanyRoleRepository" class="App\Repository\CompanyRoleRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\LeverageRepository" class="App\Repository\LeverageRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\LeverageRepository" class="App\Repository\LeverageRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\MessageRepository" class="App\Repository\MessageRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\MessageRepository" class="App\Repository\MessageRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\ProductRepository" class="App\Repository\ProductRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\ProductRepository" class="App\Repository\ProductRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\ProjectRepository" class="App\Repository\ProjectRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\ProjectRepository" class="App\Repository\ProjectRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\RolesCompanyRepository" class="App\Repository\RolesCompanyRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\RolesCompanyRepository" class="App\Repository\RolesCompanyRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\StatusRepository" class="App\Repository\StatusRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\StatusRepository" class="App\Repository\StatusRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\TargetRepository" class="App\Repository\TargetRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\TargetRepository" class="App\Repository\TargetRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\TaskRepository" class="App\Repository\TaskRepository" autowire="true" abstract="true"/>
@@ -7491,9 +7828,11 @@
     <service id=".abstract.instanceof.App\Serializer\MediaObjectNormalizer" class="App\Serializer\MediaObjectNormalizer" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Serializer\Normalizer\DenormalizerInterface.0.App\Serializer\UploadedFileDenormalizer" class="App\Serializer\UploadedFileDenormalizer" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Serializer\UploadedFileDenormalizer" class="App\Serializer\UploadedFileDenormalizer" autowire="true" autoconfigure="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Services\TrackingPixelGenerator" class="App\Services\TrackingPixelGenerator" autowire="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Services\TrackingPixelGenerator" class="App\Services\TrackingPixelGenerator" autowire="true" abstract="true"/>
-    <service id=".abstract.instanceof.App\Services\TrackingPixelGenerator" class="App\Services\TrackingPixelGenerator" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Service\TrackingPixelGenerator" class="App\Service\TrackingPixelGenerator" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Service\TrackingPixelGenerator" class="App\Service\TrackingPixelGenerator" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Service\TrackingPixelGenerator" class="App\Service\TrackingPixelGenerator" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.ApiPlatform\State\ProcessorInterface.0.App\State\CompanyCreationStateProcessor" class="App\State\CompanyCreationStateProcessor" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\State\CompanyCreationStateProcessor" class="App\State\CompanyCreationStateProcessor" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.ApiPlatform\State\ProcessorInterface.0.App\State\UserCreationStateProcessor" class="App\State\UserCreationStateProcessor" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\State\UserCreationStateProcessor" class="App\State\UserCreationStateProcessor" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Validator\ConstraintValidatorInterface.0.App\Validator\isValidGeolocatedContextValidator" class="App\Validator\isValidGeolocatedContextValidator" autowire="true" abstract="true"/>
@@ -7755,6 +8094,20 @@
         <argument>Create controller, entity, and repositories for use with symfonycasts/reset-password-bundle</argument>
       </call>
     </service>
+    <service id="maker.auto_command.make_schedule" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:schedule" description="Create a scheduler component"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="maker.maker.make_schedule"/>
+      <argument type="service" id="maker.file_manager"/>
+      <argument type="service" id="maker.generator"/>
+      <argument type="service" id="maker.template_linter"/>
+      <call method="setName">
+        <argument>make:schedule</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Create a scheduler component</argument>
+      </call>
+    </service>
     <service id="maker.auto_command.make_serializer_encoder" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
       <tag name="console.command" command="make:serializer:encoder" description="Create a new serializer encoder class"/>
       <tag name="container.no_preload"/>
@@ -7903,6 +8256,62 @@
         <argument>Generate the code needed for the form_login authenticator</argument>
       </call>
     </service>
+    <service id="maker.auto_command.make_security_custom" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:security:custom" description="Create a custom security authenticator."/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="maker.maker.make_custom_authenticator"/>
+      <argument type="service" id="maker.file_manager"/>
+      <argument type="service" id="maker.generator"/>
+      <argument type="service" id="maker.template_linter"/>
+      <call method="setName">
+        <argument>make:security:custom</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Create a custom security authenticator.</argument>
+      </call>
+    </service>
+    <service id="maker.auto_command.make_webhook" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:webhook" description="Create a new Webhook"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="maker.maker.make_webhook"/>
+      <argument type="service" id="maker.file_manager"/>
+      <argument type="service" id="maker.generator"/>
+      <argument type="service" id="maker.template_linter"/>
+      <call method="setName">
+        <argument>make:webhook</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Create a new Webhook</argument>
+      </call>
+    </service>
+    <service id="maker.auto_command.make_story" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:story" description="Creates a Foundry story"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id=".zenstruck_foundry.maker.story"/>
+      <argument type="service" id="maker.file_manager"/>
+      <argument type="service" id="maker.generator"/>
+      <argument type="service" id="maker.template_linter"/>
+      <call method="setName">
+        <argument>make:story</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Creates a Foundry story</argument>
+      </call>
+    </service>
+    <service id="maker.auto_command.make_factory" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:factory" description="Creates a Foundry model factory for a Doctrine entity class or a regular object"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id=".zenstruck_foundry.maker.factory"/>
+      <argument type="service" id="maker.file_manager"/>
+      <argument type="service" id="maker.generator"/>
+      <argument type="service" id="maker.template_linter"/>
+      <call method="setName">
+        <argument>make:factory</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Creates a Foundry model factory for a Doctrine entity class or a regular object</argument>
+      </call>
+    </service>
     <service id=".service_locator.y4_Zrx." class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -7936,12 +8345,24 @@
         <argument key="uploadHandler" type="service_closure" id="vich_uploader.upload_handler"/>
       </argument>
     </service>
-    <service id=".service_locator.Uj_nFTv" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.l8PeLb." class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="logger" type="service_closure" id="monolog.logger"/>
+        <argument key="mailService" type="service_closure" id="App\Service\MailUpdatePassword"/>
+        <argument key="serializer" type="service_closure" id="serializer"/>
+        <argument key="uploadHandler" type="service_closure" id="vich_uploader.upload_handler"/>
+        <argument key="userRepo" type="service_closure" id="App\Repository\UserRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator..snt7Q5" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Controller\BriefController::createBrief" type="service_closure" id=".service_locator.DiKkZtG"/>
         <argument key="App\Controller\CallMessageClearRefreshTokenController::sendMessage" type="service_closure" id=".service_locator.y_RkHh0"/>
         <argument key="App\Controller\Company\PatchCompanyController::index" type="service_closure" id=".service_locator.YEtl_1y"/>
+        <argument key="App\Controller\User\PatchUserController::index" type="service_closure" id=".service_locator.l8PeLb."/>
         <argument key="App\Kernel::loadRoutes" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="App\Kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="kernel::loadRoutes" type="service_closure" id=".service_locator.y4_Zrx."/>
@@ -7949,6 +8370,7 @@
         <argument key="App\Controller\BriefController:createBrief" type="service_closure" id=".service_locator.DiKkZtG"/>
         <argument key="App\Controller\CallMessageClearRefreshTokenController:sendMessage" type="service_closure" id=".service_locator.y_RkHh0"/>
         <argument key="App\Controller\Company\PatchCompanyController:index" type="service_closure" id=".service_locator.YEtl_1y"/>
+        <argument key="App\Controller\User\PatchUserController:index" type="service_closure" id=".service_locator.l8PeLb."/>
         <argument key="kernel:loadRoutes" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="kernel:registerContainerConfiguration" type="service_closure" id=".service_locator.y4_Zrx."/>
       </argument>
@@ -8095,6 +8517,10 @@
       <argument type="service" id="http_client.messenger.ping_webhook_handler"/>
       <argument type="collection"/>
     </service>
+    <service id=".messenger.handler_descriptor.tGvt0LH" class="Symfony\Component\Messenger\Handler\HandlerDescriptor">
+      <argument type="service" id="mailer.messenger.message_handler"/>
+      <argument type="collection"/>
+    </service>
     <service id=".messenger.handler_descriptor.FWSClS0" class="Symfony\Component\Messenger\Handler\HandlerDescriptor">
       <argument type="service" id="scheduler.messenger.service_call_message_handler"/>
       <argument type="collection"/>
@@ -8117,6 +8543,9 @@
         </argument>
         <argument key="Symfony\Component\HttpClient\Messenger\PingWebhookMessage" type="iterator">
           <argument type="service" id=".messenger.handler_descriptor.6kVvRT."/>
+        </argument>
+        <argument key="Symfony\Component\Mailer\Messenger\SendEmailMessage" type="iterator">
+          <argument type="service" id=".messenger.handler_descriptor.tGvt0LH"/>
         </argument>
         <argument key="Symfony\Component\Scheduler\Messenger\ServiceCallMessage" type="iterator">
           <argument type="service" id=".messenger.handler_descriptor.FWSClS0"/>
@@ -8166,14 +8595,20 @@
         <argument key="vich_uploader.listener.upload.user_avatar" type="service_closure" id="vich_uploader.listener.upload.user_avatar"/>
       </argument>
     </service>
-    <service id=".service_locator.oRhHwcD" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.0M6RPz6" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Repository\BriefRepository" type="service_closure" id="App\Repository\BriefRepository"/>
+        <argument key="App\Repository\BriefSelectionRepository" type="service_closure" id="App\Repository\BriefSelectionRepository"/>
         <argument key="App\Repository\BusinessModelRepository" type="service_closure" id="App\Repository\BusinessModelRepository"/>
         <argument key="App\Repository\CompanyRepository" type="service_closure" id="App\Repository\CompanyRepository"/>
+        <argument key="App\Repository\CompanyRoleRepository" type="service_closure" id="App\Repository\CompanyRoleRepository"/>
+        <argument key="App\Repository\LeverageRepository" type="service_closure" id="App\Repository\LeverageRepository"/>
         <argument key="App\Repository\MessageRepository" type="service_closure" id="App\Repository\MessageRepository"/>
+        <argument key="App\Repository\ProductRepository" type="service_closure" id="App\Repository\ProductRepository"/>
         <argument key="App\Repository\ProjectRepository" type="service_closure" id="App\Repository\ProjectRepository"/>
+        <argument key="App\Repository\RolesCompanyRepository" type="service_closure" id="App\Repository\RolesCompanyRepository"/>
+        <argument key="App\Repository\StatusRepository" type="service_closure" id="App\Repository\StatusRepository"/>
         <argument key="App\Repository\TargetRepository" type="service_closure" id="App\Repository\TargetRepository"/>
         <argument key="App\Repository\TaskRepository" type="service_closure" id="App\Repository\TaskRepository"/>
         <argument key="App\Repository\UserRepository" type="service_closure" id="App\Repository\UserRepository"/>
@@ -8238,6 +8673,15 @@
     </service>
     <service id="monolog.logger.http_client" class="Monolog\Logger">
       <argument>http_client</argument>
+      <call method="pushHandler">
+        <argument type="service" id="monolog.handler.console"/>
+      </call>
+      <call method="pushHandler">
+        <argument type="service" id="monolog.handler.main"/>
+      </call>
+    </service>
+    <service id="monolog.logger.mailer" class="Monolog\Logger">
+      <argument>mailer</argument>
       <call method="pushHandler">
         <argument type="service" id="monolog.handler.console"/>
       </call>
@@ -8589,23 +9033,35 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.jUv.zyj" method="withContext"/>
     </service>
-    <service id=".service_locator.jUv.zyj.App\Services\TrackingPixelGenerator" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Services\TrackingPixelGenerator"/>
-      <argument>App\Services\TrackingPixelGenerator</argument>
+    <service id=".service_locator.jUv.zyj.App\Controller\TestMailController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\TestMailController"/>
+      <argument>App\Controller\TestMailController</argument>
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.jUv.zyj" method="withContext"/>
     </service>
-    <service id=".service_locator.yEoeHjj" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.jUv.zyj.App\Controller\User\PatchUserController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\User\PatchUserController"/>
+      <argument>App\Controller\User\PatchUserController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.jUv.zyj" method="withContext"/>
+    </service>
+    <service id=".service_locator.jUv.zyj.App\Service\TrackingPixelGenerator" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Service\TrackingPixelGenerator"/>
+      <argument>App\Service\TrackingPixelGenerator</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.jUv.zyj" method="withContext"/>
+    </service>
+    <service id=".service_locator.otfny_1" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="routing.loader" type="service_closure" id="routing.loader"/>
       </argument>
     </service>
-    <service id=".service_locator.yEoeHjj.router.default" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.otfny_1.router.default" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="router.default"/>
       <argument>router.default</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.yEoeHjj" method="withContext"/>
+      <factory service=".service_locator.otfny_1" method="withContext"/>
     </service>
     <service id=".service_locator.cUcW89y" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
@@ -8733,12 +9189,13 @@
         <argument key="api_platform.validator.state.error_provider" type="service_closure" id="api_platform.validator.state.error_provider"/>
       </argument>
     </service>
-    <service id=".service_locator.iZHetR2" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.KxChr7Q" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="ApiPlatform\Doctrine\Common\State\PersistProcessor" type="service_closure" id="api_platform.doctrine.orm.state.persist_processor"/>
         <argument key="ApiPlatform\Doctrine\Common\State\RemoveProcessor" type="service_closure" id="api_platform.doctrine.orm.state.remove_processor"/>
         <argument key="ApiPlatform\Symfony\Messenger\Processor" type="service_closure" id="ApiPlatform\Symfony\Messenger\Processor"/>
+        <argument key="App\State\CompanyCreationStateProcessor" type="service_closure" id="App\State\CompanyCreationStateProcessor"/>
         <argument key="App\State\UserCreationStateProcessor" type="service_closure" id="App\State\UserCreationStateProcessor"/>
         <argument key="api_platform.doctrine.orm.state.persist_processor" type="service_closure" id="api_platform.doctrine.orm.state.persist_processor"/>
         <argument key="api_platform.doctrine.orm.state.remove_processor" type="service_closure" id="api_platform.doctrine.orm.state.remove_processor"/>
@@ -8790,7 +9247,9 @@
           <argument>App\Controller\LoggedUserController</argument>
           <argument>App\Controller\PixelGeneratorController</argument>
           <argument>App\Controller\SecurityController</argument>
-          <argument>App\Services\TrackingPixelGenerator</argument>
+          <argument>App\Controller\TestMailController</argument>
+          <argument>App\Controller\User\PatchUserController</argument>
+          <argument>App\Service\TrackingPixelGenerator</argument>
           <argument>Doctrine\Bundle\DoctrineBundle\Controller\ProfilerController</argument>
         </argument>
       </call>
@@ -9133,6 +9592,13 @@
       <argument>false</argument>
       <argument type="service_closure" id="console.command.secrets_encrypt_from_local"/>
     </service>
+    <service id=".console.command.mailer_test.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>mailer:test</argument>
+      <argument type="collection"/>
+      <argument>Test Mailer transports by sending an email</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="console.command.mailer_test"/>
+    </service>
     <service id=".twig.command.debug.lazy" class="Symfony\Component\Console\Command\LazyCommand">
       <argument>debug:twig</argument>
       <argument type="collection"/>
@@ -9415,6 +9881,13 @@
       <argument>false</argument>
       <argument type="service_closure" id="maker.auto_command.make_reset_password"/>
     </service>
+    <service id=".maker.auto_command.make_schedule.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:schedule</argument>
+      <argument type="collection"/>
+      <argument>Create a scheduler component</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_schedule"/>
+    </service>
     <service id=".maker.auto_command.make_serializer_encoder.lazy" class="Symfony\Component\Console\Command\LazyCommand">
       <argument>make:serializer:encoder</argument>
       <argument type="collection"/>
@@ -9488,9 +9961,37 @@
       <argument>false</argument>
       <argument type="service_closure" id="maker.auto_command.make_security_form_login"/>
     </service>
+    <service id=".maker.auto_command.make_security_custom.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:security:custom</argument>
+      <argument type="collection"/>
+      <argument>Create a custom security authenticator.</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_security_custom"/>
+    </service>
+    <service id=".maker.auto_command.make_webhook.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:webhook</argument>
+      <argument type="collection"/>
+      <argument>Create a new Webhook</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_webhook"/>
+    </service>
+    <service id=".maker.auto_command.make_story.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:story</argument>
+      <argument type="collection"/>
+      <argument>Creates a Foundry story</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_story"/>
+    </service>
+    <service id=".maker.auto_command.make_factory.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:factory</argument>
+      <argument type="collection"/>
+      <argument>Creates a Foundry model factory for a Doctrine entity class or a regular object</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_factory"/>
+    </service>
     <service id="console.command_loader" class="Symfony\Component\Console\CommandLoader\ContainerCommandLoader" public="true">
       <tag name="container.no_preload"/>
-      <argument type="service" id=".service_locator.1kdmGLf"/>
+      <argument type="service" id=".service_locator.kqHYzIf"/>
       <argument type="collection">
         <argument key="about">console.command.about</argument>
         <argument key="assets:install">console.command.assets_install</argument>
@@ -9525,6 +10026,7 @@
         <argument key="secrets:list">console.command.secrets_list</argument>
         <argument key="secrets:decrypt-to-local">console.command.secrets_decrypt_to_local</argument>
         <argument key="secrets:encrypt-from-local">console.command.secrets_encrypt_from_local</argument>
+        <argument key="mailer:test">console.command.mailer_test</argument>
         <argument key="debug:twig">twig.command.debug</argument>
         <argument key="lint:twig">twig.command.lint</argument>
         <argument key="debug:firewall">security.command.debug_firewall</argument>
@@ -9589,6 +10091,7 @@
         <argument key="make:messenger-middleware">maker.auto_command.make_messenger_middleware</argument>
         <argument key="make:registration-form">maker.auto_command.make_registration_form</argument>
         <argument key="make:reset-password">maker.auto_command.make_reset_password</argument>
+        <argument key="make:schedule">maker.auto_command.make_schedule</argument>
         <argument key="make:serializer:encoder">maker.auto_command.make_serializer_encoder</argument>
         <argument key="make:serializer:normalizer">maker.auto_command.make_serializer_normalizer</argument>
         <argument key="make:twig-extension">maker.auto_command.make_twig_extension</argument>
@@ -9601,9 +10104,13 @@
         <argument key="make:migration">maker.auto_command.make_migration</argument>
         <argument key="make:stimulus-controller">maker.auto_command.make_stimulus_controller</argument>
         <argument key="make:security:form-login">maker.auto_command.make_security_form_login</argument>
+        <argument key="make:security:custom">maker.auto_command.make_security_custom</argument>
+        <argument key="make:webhook">maker.auto_command.make_webhook</argument>
+        <argument key="make:story">maker.auto_command.make_story</argument>
+        <argument key="make:factory">maker.auto_command.make_factory</argument>
       </argument>
     </service>
-    <service id=".service_locator.1kdmGLf" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.kqHYzIf" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="Doctrine\DBAL\Tools\Console\Command\RunSqlCommand" type="service_closure" id="Doctrine\DBAL\Tools\Console\Command\RunSqlCommand"/>
@@ -9627,6 +10134,7 @@
         <argument key="console.command.debug_autowiring" type="service_closure" id=".console.command.debug_autowiring.lazy"/>
         <argument key="console.command.dotenv_debug" type="service_closure" id=".console.command.dotenv_debug.lazy"/>
         <argument key="console.command.event_dispatcher_debug" type="service_closure" id=".console.command.event_dispatcher_debug.lazy"/>
+        <argument key="console.command.mailer_test" type="service_closure" id=".console.command.mailer_test.lazy"/>
         <argument key="console.command.messenger_consume_messages" type="service_closure" id=".console.command.messenger_consume_messages.lazy"/>
         <argument key="console.command.messenger_debug" type="service_closure" id=".console.command.messenger_debug.lazy"/>
         <argument key="console.command.messenger_setup_transports" type="service_closure" id=".console.command.messenger_setup_transports.lazy"/>
@@ -9685,6 +10193,7 @@
         <argument key="maker.auto_command.make_crud" type="service_closure" id=".maker.auto_command.make_crud.lazy"/>
         <argument key="maker.auto_command.make_docker_database" type="service_closure" id=".maker.auto_command.make_docker_database.lazy"/>
         <argument key="maker.auto_command.make_entity" type="service_closure" id=".maker.auto_command.make_entity.lazy"/>
+        <argument key="maker.auto_command.make_factory" type="service_closure" id=".maker.auto_command.make_factory.lazy"/>
         <argument key="maker.auto_command.make_fixtures" type="service_closure" id=".maker.auto_command.make_fixtures.lazy"/>
         <argument key="maker.auto_command.make_form" type="service_closure" id=".maker.auto_command.make_form.lazy"/>
         <argument key="maker.auto_command.make_listener" type="service_closure" id=".maker.auto_command.make_listener.lazy"/>
@@ -9693,18 +10202,22 @@
         <argument key="maker.auto_command.make_migration" type="service_closure" id=".maker.auto_command.make_migration.lazy"/>
         <argument key="maker.auto_command.make_registration_form" type="service_closure" id=".maker.auto_command.make_registration_form.lazy"/>
         <argument key="maker.auto_command.make_reset_password" type="service_closure" id=".maker.auto_command.make_reset_password.lazy"/>
+        <argument key="maker.auto_command.make_schedule" type="service_closure" id=".maker.auto_command.make_schedule.lazy"/>
+        <argument key="maker.auto_command.make_security_custom" type="service_closure" id=".maker.auto_command.make_security_custom.lazy"/>
         <argument key="maker.auto_command.make_security_form_login" type="service_closure" id=".maker.auto_command.make_security_form_login.lazy"/>
         <argument key="maker.auto_command.make_serializer_encoder" type="service_closure" id=".maker.auto_command.make_serializer_encoder.lazy"/>
         <argument key="maker.auto_command.make_serializer_normalizer" type="service_closure" id=".maker.auto_command.make_serializer_normalizer.lazy"/>
         <argument key="maker.auto_command.make_state_processor" type="service_closure" id=".maker.auto_command.make_state_processor.lazy"/>
         <argument key="maker.auto_command.make_state_provider" type="service_closure" id=".maker.auto_command.make_state_provider.lazy"/>
         <argument key="maker.auto_command.make_stimulus_controller" type="service_closure" id=".maker.auto_command.make_stimulus_controller.lazy"/>
+        <argument key="maker.auto_command.make_story" type="service_closure" id=".maker.auto_command.make_story.lazy"/>
         <argument key="maker.auto_command.make_test" type="service_closure" id=".maker.auto_command.make_test.lazy"/>
         <argument key="maker.auto_command.make_twig_component" type="service_closure" id=".maker.auto_command.make_twig_component.lazy"/>
         <argument key="maker.auto_command.make_twig_extension" type="service_closure" id=".maker.auto_command.make_twig_extension.lazy"/>
         <argument key="maker.auto_command.make_user" type="service_closure" id=".maker.auto_command.make_user.lazy"/>
         <argument key="maker.auto_command.make_validator" type="service_closure" id=".maker.auto_command.make_validator.lazy"/>
         <argument key="maker.auto_command.make_voter" type="service_closure" id=".maker.auto_command.make_voter.lazy"/>
+        <argument key="maker.auto_command.make_webhook" type="service_closure" id=".maker.auto_command.make_webhook.lazy"/>
         <argument key="security.command.debug_firewall" type="service_closure" id=".security.command.debug_firewall.lazy"/>
         <argument key="security.command.user_password_hash" type="service_closure" id=".security.command.user_password_hash.lazy"/>
         <argument key="twig.command.debug" type="service_closure" id=".twig.command.debug.lazy"/>
@@ -9754,6 +10267,9 @@
     <service id=".Symfony\Component\Asset\PackageInterface $public.package" alias="assets._package_public"/>
     <service id="Symfony\Component\Asset\PackageInterface $publicPackage" alias="assets._package_public"/>
     <service id="Symfony\Contracts\HttpClient\HttpClientInterface" alias="http_client.uri_template"/>
+    <service id="mailer" alias="mailer.mailer"/>
+    <service id="Symfony\Component\Mailer\MailerInterface" alias="mailer.mailer"/>
+    <service id="Symfony\Component\Mailer\Transport\TransportInterface" alias="mailer.default_transport"/>
     <service id="Symfony\Component\ErrorHandler\ErrorRenderer\FileLinkFormatter" alias="debug.file_link_formatter"/>
     <service id="Symfony\Component\Stopwatch\Stopwatch" alias="debug.stopwatch"/>
     <service id="router" alias="router.default" public="true"/>
@@ -9799,6 +10315,7 @@
     <service id="Symfony\Component\Mime\MimeTypesInterface" alias="mime_types"/>
     <service id="Symfony\Component\Mime\MimeTypeGuesserInterface" alias="mime_types"/>
     <service id="Twig\Environment" alias="twig"/>
+    <service id="Symfony\Component\Mime\BodyRendererInterface" alias="twig.mime_body_renderer"/>
     <service id="Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface" alias="security.authorization_checker"/>
     <service id="Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface" alias="security.token_storage"/>
     <service id="Symfony\Bundle\SecurityBundle\Security" alias="security.helper"/>
@@ -9944,7 +10461,7 @@
     <service id="Vich\UploaderBundle\Form\Type\VichImageType" alias="vich_uploader.form.type.image"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.bJ.4HC5" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.Uj_nFTv"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator..snt7Q5"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.KLVvNIq"/>
     <service id="api_platform.name_converter" alias="serializer.name_converter.metadata_aware"/>
@@ -9954,6 +10471,7 @@
     <service id="Psr\Log\LoggerInterface $cacheLogger" alias="monolog.logger.cache"/>
     <service id=".Psr\Log\LoggerInterface $http_clientLogger" alias="monolog.logger.http_client"/>
     <service id="Psr\Log\LoggerInterface $httpClientLogger" alias="monolog.logger.http_client"/>
+    <service id="Psr\Log\LoggerInterface $mailerLogger" alias="monolog.logger.mailer"/>
     <service id="Psr\Log\LoggerInterface $phpLogger" alias="monolog.logger.php"/>
     <service id="Psr\Log\LoggerInterface $eventLogger" alias="monolog.logger.event"/>
     <service id="Psr\Log\LoggerInterface $routerLogger" alias="monolog.logger.router"/>
@@ -9965,7 +10483,7 @@
     <service id=".service_locator.mdMdWuV" alias="messenger.receiver_locator"/>
     <service id=".service_locator.27KOu4H" alias="messenger.retry_strategy_locator"/>
     <service id=".service_locator.bnaLdkn" alias="api_platform.serializer_locator"/>
-    <service id=".service_locator.N.UtAJT" alias="api_platform.filter_locator"/>
+    <service id=".service_locator.a8DfCva" alias="api_platform.filter_locator"/>
     <service id=".service_locator.Or51_HC" alias=".service_locator.rWbkdyc"/>
     <service id="api_platform.metadata.resource.metadata_collection_factory.deprecations.inner" alias="api_platform.metadata.resource.metadata_collection_factory.attributes"/>
     <service id="api_platform.metadata.resource.metadata_collection_factory.xml.inner" alias="api_platform.metadata.resource.metadata_collection_factory.deprecations"/>
@@ -10042,6 +10560,7 @@
     <service id=".service_locator.ZRXorY3" alias=".service_locator.DiKkZtG"/>
     <service id=".service_locator.TROsObn" alias=".service_locator.y_RkHh0"/>
     <service id=".service_locator.IIg6BLA" alias=".service_locator.YEtl_1y"/>
+    <service id=".service_locator.hWWmZy1" alias=".service_locator.l8PeLb."/>
     <service id=".service_locator.YMNZ5uT" alias=".service_locator.jUv.zyj"/>
     <service id=".service_locator.NpPkiv8" alias=".service_locator.QuhhJxU"/>
   </services>

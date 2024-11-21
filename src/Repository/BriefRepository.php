@@ -21,6 +21,8 @@ class BriefRepository extends ServiceEntityRepository
         parent::__construct($registry, Brief::class);
     }
 
+
+
 //    /**
 //     * @return Brief[] Returns an array of Brief objects
 //     */

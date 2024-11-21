@@ -19,7 +19,6 @@ public function __construct(private ProcessorInterface $innerProcessor, private 
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-
         if($data instanceof User && $context['request']->getMethod() === 'POST' ){
             //Hasher le mot de passe
             $data->setPassword($this->passwordHasher->hashPassword($data,$data->getPassword()));

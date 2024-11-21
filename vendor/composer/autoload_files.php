@@ -15,4 +15,9 @@ return array(
     'b6b991a57620e2fb6b2f66f03fe9ddc2' => $vendorDir . '/symfony/string/Resources/functions.php',
     '2203a247e6fda86070a5e4e07aed533a' => $vendorDir . '/symfony/clock/Resources/now.php',
     'f598d06aa772fa33d905e87be6398fb1' => $vendorDir . '/symfony/polyfill-intl-idn/bootstrap.php',
+    '6124b4c8570aa390c21fafd04a26c69f' => $vendorDir . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
+    'ec07570ca5a812141189b1fa81503674' => $vendorDir . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
+    '4f9a1929b39ff2a6c1016427077d16f5' => $vendorDir . '/zenstruck/foundry/src/functions.php',
+    '21978ed596d07828c426dc898e1f08e0' => $vendorDir . '/zenstruck/foundry/src/Persistence/functions.php',
+    'a8d29b081027eaae7a081084fff435bd' => $vendorDir . '/zenstruck/foundry/src/phpunit_helper.php',
 );

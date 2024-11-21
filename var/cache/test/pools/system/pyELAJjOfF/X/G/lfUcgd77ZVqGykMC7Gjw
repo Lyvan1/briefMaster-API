@@ -1,0 +1,123 @@
+<?php //property_metadata_7e09ea2e93c26312e068c3bf1c5fe9ec
+
+return [PHP_INT_MAX, static fn () => \Symfony\Component\VarExporter\Internal\Hydrator::hydrate(
+    $o = [
+        clone (($p = &\Symfony\Component\VarExporter\Internal\Registry::$prototypes)['ApiPlatform\\Metadata\\ApiProperty'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('ApiPlatform\\Metadata\\ApiProperty')),
+        clone ($p['Symfony\\Component\\PropertyInfo\\Type'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('Symfony\\Component\\PropertyInfo\\Type')),
+    ],
+    null,
+    [
+        'ApiPlatform\\Metadata\\ApiProperty' => [
+            'description' => [
+                null,
+            ],
+            'readable' => [
+                true,
+            ],
+            'writable' => [
+                true,
+            ],
+            'readableLink' => [
+                null,
+            ],
+            'writableLink' => [
+                null,
+            ],
+            'required' => [
+                true,
+            ],
+            'identifier' => [
+                null,
+            ],
+            'example' => [
+                null,
+            ],
+            'deprecationReason' => [
+                null,
+            ],
+            'fetchable' => [
+                null,
+            ],
+            'fetchEager' => [
+                null,
+            ],
+            'jsonldContext' => [
+                null,
+            ],
+            'openapiContext' => [
+                [
+                    'type' => 'email',
+                    'example' => 'test@gmail.com',
+                ],
+            ],
+            'jsonSchemaContext' => [
+                null,
+            ],
+            'push' => [
+                null,
+            ],
+            'security' => [
+                null,
+            ],
+            'securityPostDenormalize' => [
+                null,
+            ],
+            'types' => [
+                [
+                    'https://schema.org/email',
+                ],
+            ],
+            'builtinTypes' => [
+                [
+                    $o[1],
+                ],
+            ],
+            'schema' => [
+                [
+                    'format' => 'email',
+                    'externalDocs' => [
+                        'url' => 'https://schema.org/email',
+                    ],
+                    'type' => [
+                        'string',
+                        'null',
+                    ],
+                ],
+            ],
+            'initializable' => [
+                false,
+            ],
+            'genId' => [
+                null,
+            ],
+            'uriTemplate' => [
+                null,
+            ],
+            'extraProperties' => [
+                [],
+            ],
+        ],
+        'Symfony\\Component\\PropertyInfo\\Type' => [
+            'builtinType' => [
+                1 => 'string',
+            ],
+            'nullable' => [
+                1 => true,
+            ],
+            'class' => [
+                1 => null,
+            ],
+            'collection' => [
+                1 => false,
+            ],
+            'collectionKeyType' => [
+                1 => [],
+            ],
+            'collectionValueType' => [
+                1 => [],
+            ],
+        ],
+    ],
+    $o[0],
+    []
+)];

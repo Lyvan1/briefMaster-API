@@ -5,10 +5,14 @@ namespace App\Entity;
 use AllowDynamicProperties;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Controller\LoggedUserController;
+use App\Controller\TestMailController;
+use App\Controller\User\PatchUserController;
 use App\Repository\UsersRepository;
 use App\State\UserCreationStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -19,6 +23,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
@@ -35,13 +40,13 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
                 'summary' => 'Create user',
                 'description' => 'Permet de créer un utilisateur',
             ],
-            normalizationContext: ['groups' => ['read:User:item', 'read:User:collection', 'read:Company:User', 'read:User:Role']],
+            normalizationContext: ['groups' => ['read:User:item', 'read:User:collection']],
             denormalizationContext: ['groups' => ['create:User:item', ]],
             processor: UserCreationStateProcessor::class, //Hashage du mot de passe
         ),
 
         new Get(
-            normalizationContext: ['groups' => ['read:User:item', 'read:Company:User',]],
+            normalizationContext: ['groups' => ['read:User:item', 'read:Company:User', 'read:User:Role']],
             denormalizationContext: ['groups' => ['read:User:item', 'read:Company:User']],
         ),
 
@@ -52,7 +57,20 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         new GetCollection(
             uriTemplate: '/logged',
             controller: LoggedUserController::class
-        )
+        ),
+        new Patch(
+            inputFormats: ['multipart' => ['multipart/form-data']],
+            controller: PatchUserController::class,
+            openapiContext: [
+                'operations' => ['methods' => ['PATCH']],
+                'summary' => 'Update a user',
+                'description' => 'Allows the user to update a user by specifying One field or Many'
+            ],
+            normalizationContext: ['groups' => ['read:User:collection']],
+            denormalizationContext: ['groups' => ['update:user:item', 'read:User:collection']]
+        ),
+        new Delete()
+
     ],
     collectDenormalizationErrors: true,
 
@@ -108,7 +126,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     #[Groups(['create:User:item', 'read:User:item', 'read:User:collection', 'read:Company:User'])]
     #[Assert\NotBlank(message: 'Firstname must be specified.')]
-    #[Assert\NotBlank(message: 'Firstname must be specified.')]
+    #[Assert\NotNull(message: 'Firstname cannot be null.')]
     #[Assert\Length(min: 3, minMessage: 'Firstname must be at least {{ limit }} characters.')]
     #[ApiProperty(openapiContext: ['type' => 'string', 'example' => 'Firstname'])]
     private ?string $firstname = null;
@@ -116,7 +134,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     #[Groups(['create:User:item', 'read:User:item', 'read:User:collection', 'read:Company:User'])]
     #[Assert\NotBlank(message: 'Lastname must be specified.')]
-    #[Assert\NotBlank(message: 'Lastname must be specified.')]
+    #[Assert\NotNull(message: 'Lastname cannot be null.')]
     #[Assert\Length(min: 3, minMessage: 'Lastname must be at least {{ limit }} characters.')]
     #[ApiProperty(openapiContext: ['type' => 'string', 'example' => 'Lastname'])]
     private ?string $lastname = null;
@@ -130,7 +148,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne(targetEntity: Company::class, inversedBy: 'users')]
     #[Assert\NotBlank(message: 'Company must be specified.')]
     #[Assert\NotNull(message: 'Company is required')]
-    #[Groups(['create:User:item', 'read:User:item', 'read:User:collection'])]
+    #[Groups(['create:User:item', 'read:User:item', 'read:User:collection' ])]
     private ?Company $company = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -158,7 +176,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(targetEntity: UsersRole::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['create:User:item', 'read:User:collection', 'read:User:item', 'read:User:Role'])]
+   /* #[Groups(['create:User:item', 'read:User:Role', 'read:User:item', 'read:User:collection'])] */
+    #[Groups(['create:User:item', 'read:User:Role',])]
+    #[MaxDepth(1)]
     private ?UsersRole $roles = null;
 
 
@@ -396,10 +416,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
 
-    public function getRole(): UsersRole
+   /* public function getRole(): UsersRole
     {
         return $this->roles;
-    }
+    }*/
 
     public function setRoles(?UsersRole $roles): static
     {

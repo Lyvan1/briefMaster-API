@@ -3,7 +3,6 @@
 namespace App\Serializer;
 
 use App\Entity\Company;
-use App\Entity\UserOld;
 use App\Entity\User;
 use App\Repository\CompanyRepository;
 use App\Repository\UserRepository;
@@ -28,7 +27,7 @@ class MediaObjectNormalizer implements NormalizerInterface
         private readonly NormalizerInterface $normalizer,
         private readonly StorageInterface    $storage,
         private CompanyRepository            $companyRepo,
-        private UsersRepository               $userRepo,
+        private UserRepository               $userRepo,
         private EntityManagerInterface       $entityManager,
         private DownloadHandler              $downloadHandler
     )
@@ -42,6 +41,7 @@ class MediaObjectNormalizer implements NormalizerInterface
         $class = get_class($object);
 
         if ($object instanceof Company) {
+
             if (isset($context['operation']) && $context['operation']->getMethod() === 'POST' && $object->getLogo() !== null) {
                 $object->logoUrl = $this->storage->resolveUri($object, 'logoFile');
                 $currentCompany = $this->companyRepo->find($object->getId());
@@ -55,7 +55,6 @@ class MediaObjectNormalizer implements NormalizerInterface
             }
         } else if( $object instanceof User) {
             if (isset($context['operation']) && $context['operation']->getMethod() === 'POST' && $object->getAvatar() !== null) {
-
                 $object->avatarUrl = $this->storage->resolveUri($object, 'avatarFile');
 
                 $currentUser = $this->userRepo->find($object->getId());

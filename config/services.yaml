@@ -29,10 +29,19 @@ services:
         bind:
             $innerProcessor: '@api_platform.doctrine.orm.state.persist_processor'
 
+    App\State\CompanyCreationStateProcessor:
+        bind:
+            $innerProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+
 
     App\MessageHandler\ClearRefreshTokenFromDatabaseHandler:
         tags: [ 'messenger.message_handler' ]
 
+
+
+#    App\EventListener\UserPostPersistListener:
+#        tags:
+#            - { name: doctrine.event_listener, event: postPersist }
 
 
 
@@ -50,6 +59,9 @@ services:
         decorates: 'api_platform.openapi.factory'
         arguments: ['@App\OpenApi\OpenApiFactory.inner']
         autoconfigure: false
+
+
+
 
 #    app.event.jwt_authentication_success_listener:
 #        class: App\EventListener\JWTAuthenticationSuccessListener

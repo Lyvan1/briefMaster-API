@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use App\Controller\PixelGeneratorController;
 use App\Repository\ProjectRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -44,7 +45,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext: ['groups' => ['create:Project:item']],
             name: 'app_pixel_generator'
         )
-    ]
+    ], collectDenormalizationErrors: true,
 )]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
@@ -79,15 +80,34 @@ class Project
 
     //type: Email, MB, LEX
     #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['create:Project:item', 'read:Project:item'])]
     private ?string $type = null;
 
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: Task::class)]
+
     private Collection $task;
+
+    #[ORM\Column(nullable: false)]
+    #[Groups(['create:Project:item', 'read:Project:item'])]
+    #[Assert\Type(
+        type: \DateTimeImmutable::class,
+        message: 'The start date should be a valid date in the format YYYY-MM-DD.'
+    )]
+    private ?\DateTimeImmutable $startDate = null;
+
+    #[ORM\Column]
+    #[Groups(['create:Project:item', 'read:Project:item'])]
+    private ?\DateTimeImmutable $endDate = null;
+
+    #[ORM\Column(length: 150)]
+    #[Groups(['create:Project:item', 'read:Project:item'])]
+    private ?string $status = null;
 
     public function __construct(string $name)
     {
         $this->setName($name);
         $this->setCreatedAt(new \DateTimeImmutable( 'now', new \DateTimeZone('Europe/paris')));
+        $this->setStartDate(\DateTimeImmutable::createFromFormat('Y-m-d', (new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris')))->format('Y-m-d')));
         $this->task = new ArrayCollection();
     }
 
@@ -198,6 +218,42 @@ class Project
                 $task->setProject(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStartDate(): ?\DateTimeImmutable
+    {
+        return $this->startDate;
+    }
+
+    public function setStartDate(\DateTimeImmutable $startDate): static
+    {
+        $this->startDate = $startDate;
+
+        return $this;
+    }
+
+    public function getEndDate(): ?\DateTimeImmutable
+    {
+        return $this->endDate;
+    }
+
+    public function setEndDate(\DateTimeImmutable $endDate): static
+    {
+        $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }

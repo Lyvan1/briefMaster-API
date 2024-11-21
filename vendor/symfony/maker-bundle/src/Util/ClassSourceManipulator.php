@@ -120,7 +120,23 @@ final class ClassSourceManipulator
         $attributes[] = $this->buildAttributeNode(Column::class, $mapping->getAttributes(), 'ORM');
 
         $defaultValue = null;
-        if ('array' === $typeHint && !$nullable) {
+        $commentLines = [];
+
+        if (null !== $mapping->enumType) {
+            if ('array' === $typeHint) {
+                // still need to add the use statement
+                $this->addUseStatementIfNecessary($mapping->enumType);
+
+                $commentLines = [\sprintf('@return %s[]', Str::getShortClassName($mapping->enumType))];
+                if ($nullable) {
+                    $commentLines[0] = \sprintf('%s|null', $commentLines[0]);
+                } else {
+                    $defaultValue = new Node\Expr\Array_([], ['kind' => Node\Expr\Array_::KIND_SHORT]);
+                }
+            } else {
+                $typeHint = $this->addUseStatementIfNecessary($mapping->enumType);
+            }
+        } elseif ('array' === $typeHint && !$nullable) {
             $defaultValue = new Node\Expr\Array_([], ['kind' => Node\Expr\Array_::KIND_SHORT]);
         } elseif ($typeHint && '\\' === $typeHint[0] && false !== strpos($typeHint, '\\', 1)) {
             $typeHint = $this->addUseStatementIfNecessary(substr($typeHint, 1));
@@ -146,7 +162,8 @@ final class ClassSourceManipulator
             // getter methods always have nullable return values
             // because even though these are required in the db, they may not be set yet
             // unless there is a default value
-            null === $defaultValue
+            null === $defaultValue,
+            $commentLines
         );
 
         // don't generate setters for id fields
@@ -180,7 +197,7 @@ final class ClassSourceManipulator
             // look for "$this->propertyName = "
 
             $constructorString = $this->printer->prettyPrint([$this->getConstructorNode()]);
-            if (str_contains($constructorString, sprintf('$this->%s = ', $propertyName))) {
+            if (str_contains($constructorString, \sprintf('$this->%s = ', $propertyName))) {
                 $addEmbedded = false;
             }
         }
@@ -270,8 +287,22 @@ final class ClassSourceManipulator
 
     public function addGetter(string $propertyName, $returnType, bool $isReturnTypeNullable, array $commentLines = []): void
     {
-        $methodName = ('bool' === $returnType ? 'is' : 'get').Str::asCamelCase($propertyName);
+        $methodName = $this->getGetterName($propertyName, $returnType);
         $this->addCustomGetter($propertyName, $methodName, $returnType, $isReturnTypeNullable, $commentLines);
+    }
+
+    private function getGetterName(string $propertyName, $returnType): string
+    {
+        if ('bool' !== $returnType) {
+            return 'get'.Str::asCamelCase($propertyName);
+        }
+
+        // exclude is & has from getter definition if already in property name
+        if (0 !== strncasecmp($propertyName, 'is', 2) && 0 !== strncasecmp($propertyName, 'has', 3)) {
+            return 'is'.Str::asCamelCase($propertyName);
+        }
+
+        return Str::asLowerCamelCase($propertyName);
     }
 
     public function addSetter(string $propertyName, ?string $type, bool $isNullable, array $commentLines = []): void
@@ -436,7 +467,7 @@ final class ClassSourceManipulator
 
     private function createSetterNodeBuilder(string $propertyName, $type, bool $isNullable, array $commentLines = []): Builder\Method
     {
-        $methodName = 'set'.Str::asCamelCase($propertyName);
+        $methodName = $this->getSetterName($propertyName, $type);
         $setterNodeBuilder = (new Builder\Method($methodName))->makePublic();
 
         if ($commentLines) {
@@ -450,6 +481,15 @@ final class ClassSourceManipulator
         $setterNodeBuilder->addParam($paramBuilder->getNode());
 
         return $setterNodeBuilder;
+    }
+
+    private function getSetterName(string $propertyName, $type): string
+    {
+        if ('bool' === $type && 0 === strncasecmp($propertyName, 'is', 2)) {
+            return 'set'.Str::asCamelCase(substr($propertyName, 2));
+        }
+
+        return 'set'.Str::asCamelCase($propertyName);
     }
 
     private function addSingularRelation(BaseRelation $relation): void
@@ -571,6 +611,8 @@ final class ClassSourceManipulator
         $this->addProperty(
             name: $relation->getPropertyName(),
             attributes: $attributes,
+            // add @var that advertises this as a collection of specific objects
+            comments: [\sprintf('@var %s<int, %s>', $collectionTypeHint, $typeHint)],
             propertyType: $collectionTypeHint,
         );
 
@@ -581,7 +623,7 @@ final class ClassSourceManipulator
             // look for "$this->propertyName = "
 
             $constructorString = $this->printer->prettyPrint([$this->getConstructorNode()]);
-            if (str_contains($constructorString, sprintf('$this->%s = ', $relation->getPropertyName()))) {
+            if (str_contains($constructorString, \sprintf('$this->%s = ', $relation->getPropertyName()))) {
                 $addArrayCollection = false;
             }
         }
@@ -600,7 +642,7 @@ final class ClassSourceManipulator
             $collectionTypeHint,
             false,
             // add @return that advertises this as a collection of specific objects
-            [sprintf('@return %s<int, %s>', $collectionTypeHint, $typeHint)]
+            [\sprintf('@return %s<int, %s>', $collectionTypeHint, $typeHint)]
         );
 
         $argName = Str::pluralCamelCaseToSingular($relation->getPropertyName());
@@ -869,10 +911,20 @@ final class ClassSourceManipulator
                 );
             }
 
+            if ('enumType' === $option) {
+                return new Node\Arg(
+                    new Node\Expr\ConstFetch(new Node\Name(Str::getShortClassName($value).'::class')),
+                    false,
+                    false,
+                    [],
+                    new Node\Identifier($option)
+                );
+            }
+
             return new Node\Arg($context->buildNodeExprByValue($value), false, false, [], new Node\Identifier($option));
         }, array_keys($options), array_values($options));
 
-        $class = $attributePrefix ? sprintf('%s\\%s', $attributePrefix, Str::getShortClassName($attributeClass)) : Str::getShortClassName($attributeClass);
+        $class = $attributePrefix ? \sprintf('%s\\%s', $attributePrefix, Str::getShortClassName($attributeClass)) : Str::getShortClassName($attributeClass);
 
         return new Node\Attribute(
             new Node\Name($class),
@@ -896,7 +948,7 @@ final class ClassSourceManipulator
         // process comment lines
         foreach ($this->pendingComments as $i => $comment) {
             // sanity check
-            $placeholder = sprintf('$__COMMENT__VAR_%d;', $i);
+            $placeholder = \sprintf('$__COMMENT__VAR_%d;', $i);
             if (!str_contains($newCode, $placeholder)) {
                 // this can happen if a comment is createSingleLineCommentNode()
                 // is called, but then that generated code is ultimately not added
@@ -1017,7 +1069,7 @@ final class ClassSourceManipulator
                 // just not needed yet
                 throw new \Exception('not supported');
             case self::CONTEXT_CLASS_METHOD:
-                return BuilderHelpers::normalizeStmt(new Node\Expr\Variable(sprintf('__COMMENT__VAR_%d', \count($this->pendingComments) - 1)));
+                return BuilderHelpers::normalizeStmt(new Node\Expr\Variable(\sprintf('__COMMENT__VAR_%d', \count($this->pendingComments) - 1)));
             default:
                 throw new \Exception('Unknown context: '.$context);
         }
@@ -1046,7 +1098,7 @@ final class ClassSourceManipulator
         $existingIndex = null;
         if ($this->methodExists($methodName)) {
             if (!$this->overwrite) {
-                $this->writeNote(sprintf(
+                $this->writeNote(\sprintf(
                     'Not generating <info>%s::%s()</info>: method already exists',
                     Str::getShortClassName($this->getThisFullClassName()),
                     $methodName
@@ -1330,11 +1382,11 @@ final class ClassSourceManipulator
             if ($value instanceof ClassNameValue) {
                 $nodeValue = new Node\Expr\ConstFetch(
                     new Node\Name(
-                        sprintf('%s::class', $value->isSelf() ? 'self' : $value->getShortName())
+                        \sprintf('%s::class', $value->isSelf() ? 'self' : $value->getShortName())
                     )
                 );
             } else {
-                throw new \Exception(sprintf('Cannot build a node expr for value of type "%s"', \gettype($value)));
+                throw new \Exception(\sprintf('Cannot build a node expr for value of type "%s"', \gettype($value)));
             }
         }
 
@@ -1350,7 +1402,7 @@ final class ClassSourceManipulator
     private function sortOptionsByClassConstructorParameters(array $options, string $classString): array
     {
         if (str_starts_with($classString, 'ORM\\')) {
-            $classString = sprintf('Doctrine\\ORM\\Mapping\\%s', substr($classString, 4));
+            $classString = \sprintf('Doctrine\\ORM\\Mapping\\%s', substr($classString, 4));
         }
 
         $constructorParameterNames = array_map(static fn (\ReflectionParameter $reflectionParameter) => $reflectionParameter->getName(), (new \ReflectionClass($classString))->getConstructor()->getParameters());

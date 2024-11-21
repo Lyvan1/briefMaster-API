@@ -2,45 +2,42 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use App\Controller\BriefController;
 use App\Repository\BriefRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Validator as AcmeAssert;
 
 #[ApiResource(
     operations: [
-        //Utilisation d'un controller personnalisé pour la création de brief. Car en prepersist il faut créer le projet lié au brief.
         new Post(
-            //uriTemplate: '/brieves',
-           // controller: BriefController::class,
             openapiContext: [
-                'security' =>[ ['JWT' => [[]]]],
+                'security' => [['JWT' => [[]]]],
                 'summary' => 'Create Brief',
                 'description' => 'Permet de créer un Brief',
             ],
-            denormalizationContext: ['groups' => ['create:Brief:item', 'create:Project:item']],
-            //name: 'app_brief',
+            shortName: 'Brief',
+            denormalizationContext: ['groups' => ['create:Brief:item', 'create:Project:item', 'create:Target:item']]
         ),
-
         new Get(
             normalizationContext: ['groups' => ['read:Brief:item']]
         ),
-
         new GetCollection(
             normalizationContext: ['groups' => ['read:Brief:collection']]
         )
     ],
     collectDenormalizationErrors: true,
 )]
-
+#[ApiFilter(OrderFilter::class, properties: ['id' => 'DESC'])]
 #[ORM\Entity(repositoryClass: BriefRepository::class)]
 class Brief
 {
@@ -54,7 +51,7 @@ class Brief
     #[Groups(['create:Brief:item', 'read:User:collection', 'read:Brief:item', 'read:Brief:collection'])]
     #[Assert\NotBlank(message: 'The name must be specified.')]
     #[Assert\Length(
-        min: 10, max: 255, minMessage: 'The name must be at least {{ limit }} characters.', maxMessage: 'The name can\'t exceed {{ limit }} characters.'
+        min: 5, max: 255, minMessage: 'The name must be at least {{ limit }} characters.', maxMessage: 'The name can\'t exceed {{ limit }} characters.'
     )]
     #[ApiProperty(openapiContext: ['type' => 'string', 'example' => 'Window offer.'])]
     private ?string $name = null;
@@ -65,7 +62,7 @@ class Brief
     private ?bool $isSigned = false;
 
     #[ORM\Column]
-    #[Groups(['read:Brief:item','read:Brief:collection'])]
+    #[Groups(['read:Brief:item', 'read:Brief:collection'])]
     #[Assert\NotNull(message: 'createdAt cannot be null.')]
     private \DateTimeImmutable $createdAt;
 
@@ -103,6 +100,7 @@ class Brief
     private ?User $user = null;
 
     #[ORM\OneToOne(mappedBy: 'brief', cascade: ['persist', 'remove'])]
+    #[Groups(['read:Brief:item', 'create:Brief:item', 'read:Brief:collection'])]
     private ?Target $target = null;
 
     #[ORM\ManyToOne]
@@ -126,14 +124,37 @@ class Brief
     #[Groups(['create:Brief:item', 'read:Brief:item'])]
     private ?string $comment = null;
 
-    #[ORM\ManyToOne(inversedBy: 'briefs')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $users = null;
+    #[ORM\Column]
+    #[Groups(['create:Brief:item', 'read:Brief:item'])]
+    #[Assert\NotBlank(message: 'Unit Price must be specified.')]
+    #[Assert\NotNull(message: 'Unit Price cannot be null.')]
+    private ?float $unitPrice = null;
 
+    #[ORM\Column(length: 150)]
+    #[Groups(['create:Brief:item', 'read:Brief:item', 'read:Brief:collection'])]
+    #[Assert\NotBlank(message: 'Status must be specified.')]
+    #[Assert\NotNull(message: 'Status cannot be null.')]
+    private ?string $status = null;
+
+    #[ORM\Column]
+    #[Groups(['create:Brief:item', 'read:Brief:item'])]
+    #[Assert\NotBlank(message: 'Leverage must be specified.')]
+    #[Assert\NotNull(message: 'Leverage cannot be null.')]
+    private array $leverage = [];
+
+    /**
+     * @var Collection<int, Company>
+     */
+    
+    #[ORM\ManyToMany(targetEntity: Company::class, inversedBy: 'briefParticipations')]
+    #[ORM\JoinTable(name: 'brief_participations')]
+    #[Groups(['update:Brief:item'])]
+    private Collection $participatingCompanies;
 
     public function __construct()
     {
         $this->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris')));
+        $this->participatingCompanies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -237,12 +258,12 @@ class Brief
     }
 
 
-    public function getUser(): ?UserOld
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?UserOld $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
 
@@ -316,15 +337,76 @@ class Brief
 
     public function getUsers(): ?User
     {
-        return $this->users;
+        return $this->user;
     }
 
-    public function setUsers(?User $users): static
+    public function setUsers(?User $user): static
     {
-        $this->users = $users;
+        $this->user = $user;
 
         return $this;
     }
+
+    public function getUnitPrice(): ?float
+    {
+        return $this->unitPrice;
+    }
+
+    public function setUnitPrice(float $unitPrice): static
+    {
+        $this->unitPrice = $unitPrice;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getLeverage(): array
+    {
+        return $this->leverage;
+    }
+
+    public function setLeverage(array $leverage): static
+    {
+        $this->leverage = $leverage;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Company>
+     */
+    public function getPparticipatingCompanies(): Collection
+    {
+        return $this->participatingCompanies;
+    }
+
+    public function addPparticipatingCompany(Company $participatingCompany): static
+    {
+        if (!$this->participatingCompanies->contains($participatingCompany)) {
+            $this->participatingCompanies->add($participatingCompany);
+        }
+
+        return $this;
+    }
+
+    public function removePparticipatingCompany(Company $participatingCompany): static
+    {
+        $this->participatingCompanies->removeElement($participatingCompany);
+
+        return $this;
+    }
+
 
 
 }

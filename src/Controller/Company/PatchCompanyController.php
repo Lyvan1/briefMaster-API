@@ -2,6 +2,7 @@
 
 namespace App\Controller\Company;
 
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Repository\CompanyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -15,10 +16,15 @@ use Vich\UploaderBundle\Handler\UploadHandler;
 
 class PatchCompanyController extends AbstractController
 {
+    public function __construct(private ValidatorInterface $validator)
+    {
+    }
+
+
     #[Route('/briefApi/companies/{id}', name: 'app_patch_company')]
     public function index(LoggerInterface $logger, $id, Request $request, CompanyRepository $companyRepo, SerializerInterface $serializer, EntityManagerInterface $entityManager, UploadHandler $uploadHandler): Response
     {
-        $properties = ['name', 'zipcode', 'city', 'address', 'companyRegistrationNumber', 'country', 'vatNumber ', 'users', 'roles', 'logoFile'];
+        $properties = ['name', 'zipcode', 'city', 'address', 'companyRegistrationNumber', 'country', 'vatNumber', 'users', 'roles', 'logoFile', 'mainUserEmail', 'mainUserLastname', 'mainUserFirstname'];
         $company = $companyRepo->findOneBy(['id' => $id]);
 
         if (empty($company)) {
@@ -36,6 +42,28 @@ class PatchCompanyController extends AbstractController
             } else {
                 return new Response('This property does not exist.', Response::HTTP_BAD_REQUEST);
             }
+        }
+
+        // Validation des propriétés modifiées uniquement
+        foreach ($payload as $property => $value) {
+            $violations = $this->validator->validate($company,  [$property]);
+            if ($violations && count($violations) > 0)  {
+                foreach ($violations as $violation) {
+                    $propertyPath = $violation->getPropertyPath();
+                    $violationMessage = $violation->getMessage();
+
+                    if (!isset($errors[$propertyPath])) {
+                        $errors[$propertyPath] = [];
+                    }
+                    $errors[$propertyPath][] = $violationMessage;
+                }
+            }
+
+        }
+
+        // Si des erreurs existent, renvoyez-les
+        if (!empty($errors)) {
+            return $this->json($errors, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         if ($request->files->get('logoFile')) {
@@ -56,6 +84,7 @@ class PatchCompanyController extends AbstractController
 
             $company->setLogoUrl('/images/company_logos/' . $company->getLogo());
         }
+
 
         $entityManager->persist($company);
         $entityManager->flush();

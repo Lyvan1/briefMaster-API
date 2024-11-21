@@ -2,7 +2,7 @@
 
 namespace App\EntityListener;
 
-use App\Entity\UserOld;
+use App\Entity\User;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use JetBrains\PhpStorm\NoReturn;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -17,7 +17,7 @@ class UserListener
     }
 
     #[NoReturn]
-    public function prePersist(UserOld $user, PrePersistEventArgs $event): void{
+    public function prePersist(User $user, PrePersistEventArgs $event): void{
         $user->setPassword($this->passwordHasher->hashPassword($user,$user->getPassword()));
     }
 }
