@@ -32,9 +32,16 @@ class RolesCompany
    #[Groups(['read:Company:Role'])]
     private ?string $name = null;
 
+    /**
+     * @var Collection<int, Company>
+     */
+    #[ORM\ManyToMany(targetEntity: Company::class, mappedBy: 'companyRole')]
+
+    private Collection $companies;
+
     public function __construct()
     {
-
+        $this->companies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -50,6 +57,33 @@ class RolesCompany
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Company>
+     */
+    public function getCompanies(): Collection
+    {
+        return $this->companies;
+    }
+
+    public function addCompany(Company $company): static
+    {
+        if (!$this->companies->contains($company)) {
+            $this->companies->add($company);
+            $company->addCompanyRole($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompany(Company $company): static
+    {
+        if ($this->companies->removeElement($company)) {
+            $company->removeCompanyRole($this);
+        }
 
         return $this;
     }

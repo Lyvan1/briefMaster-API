@@ -46,7 +46,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
                 'summary' => 'Create a new company',
                 'description' => 'Permet de créer une nouvelle entreprise',
             ],
-            normalizationContext: ['groups' => ['create:Company:item','read:Company:Role', 'read:Company:collection' ]],
+            normalizationContext: ['groups' => ['create:Company:item',]],
             denormalizationContext: ['groups' => ['create:Company:item', 'read:Company:item', 'read:Company:Role', 'read:Company:collection']],
             //processor: CompanyCreationStateProcessor::class, // Ici gestion de l'envoi d'email,
         ),
@@ -222,10 +222,11 @@ class Company
     /**
      * @var Collection<int, RolesCompany>
      */
-    #[ORM\ManyToMany(targetEntity: RolesCompany::class)]
-    #[Assert\NotBlank(message: 'roles must be specified.')]
-    #[Groups(['create:Company:item', 'read:Company:collection'])]
-    private Collection $companyRoles;
+    #[ORM\ManyToMany(targetEntity: RolesCompany::class, inversedBy: 'companies')]
+    #[Assert\NotBlank(message: 'role must be specified.')]
+    #[ORM\JoinTable(name: 'companyRole')]
+    private Collection $companyRole;
+
 
 
     public function __construct()
@@ -234,7 +235,7 @@ class Company
         $this->setCreatedAt(new DateTimeImmutable('now', $timezone));
         $this->users = new ArrayCollection();
         $this->briefParticipations = new ArrayCollection();
-        $this->companyRoles = new ArrayCollection();
+        $this->companyRole = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -523,17 +524,15 @@ class Company
     /**
      * @return Collection<int, RolesCompany>
      */
-    public function getCompanyRoles(): Collection
+    public function getCompanyRole(): Collection
     {
-
-        return $this->companyRoles;
+        return $this->companyRole;
     }
 
     public function addCompanyRole(RolesCompany $companyRole): static
     {
-
-        if (!$this->companyRoles->contains($companyRole)) {
-            $this->companyRoles->add($companyRole);
+        if (!$this->companyRole->contains($companyRole)) {
+            $this->companyRole->add($companyRole);
         }
 
         return $this;
@@ -541,10 +540,12 @@ class Company
 
     public function removeCompanyRole(RolesCompany $companyRole): static
     {
-        $this->companyRoles->removeElement($companyRole);
+        $this->companyRole->removeElement($companyRole);
 
         return $this;
     }
+
+
 
 
 }

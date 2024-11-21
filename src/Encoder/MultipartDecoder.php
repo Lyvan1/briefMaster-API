@@ -36,6 +36,7 @@ final class MultipartDecoder implements DecoderInterface
 //            }, $request->request->all()) + $request->files->all();
 
         return array_map(static function ($element) {
+
                 // Si c'est une chaîne, essayez de la décoder en JSON.
                 if (is_string($element)) {
                     $decoded = json_decode($element, true);

@@ -29,7 +29,7 @@ return [PHP_INT_MAX, static fn () => \Symfony\Component\VarExporter\Internal\Hyd
                     'mainUserLastname',
                     'signUp',
                     'briefParticipations',
-                    'companyRoles',
+                    'companyRole',
                 ],
             ],
         ],

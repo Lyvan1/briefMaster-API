@@ -16,8 +16,10 @@ class RolesCompany extends \App\Entity\RolesCompany implements \Doctrine\ORM\Pro
     }
 
     private const LAZY_OBJECT_PROPERTY_SCOPES = [
+        "\0".parent::class."\0".'companies' => [parent::class, 'companies', null],
         "\0".parent::class."\0".'id' => [parent::class, 'id', null],
         "\0".parent::class."\0".'name' => [parent::class, 'name', null],
+        'companies' => [parent::class, 'companies', null],
         'id' => [parent::class, 'id', null],
         'name' => [parent::class, 'name', null],
     ];

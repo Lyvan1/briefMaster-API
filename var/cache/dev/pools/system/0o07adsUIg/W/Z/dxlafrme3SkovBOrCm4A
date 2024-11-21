@@ -278,8 +278,6 @@ return [PHP_INT_MAX, static fn () => \Symfony\Component\VarExporter\Internal\Hyd
                 2 => [
                     'groups' => [
                         'create:Company:item',
-                        'read:Company:Role',
-                        'read:Company:collection',
                     ],
                 ],
                 null,
